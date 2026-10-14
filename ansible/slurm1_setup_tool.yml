@@ -143,7 +143,7 @@
     - name: Show PATH setup
       ansible.builtin.debug:
         msg: "Added {{ uv_dir }} to shell startup files. Reconnect SSH or reload your shell to use uv directly."
-    
+
     - name: Clone project repository
       ansible.builtin.git:
         repo: "{{ github_repo }}"

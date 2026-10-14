@@ -5,8 +5,8 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=8G
 #SBATCH --time=00:05:00
-#SBATCH --output=./result/runing%j/job_%j.out
-#SBATCH --error=./result/runing%j/job_%j.err
+#SBATCH --output=result/running%j/job_%j.out
+#SBATCH --error=result/running%j/job_%j.err
 
 echo "Job started on $(hostname)"
 echo "Running as user: $(whoami)"
