@@ -4,7 +4,7 @@ slurm:
     ansible_connection: ssh
     ansible_python_interpreter: auto_silent
     # project and destination paths
-    project_path: ~/project
+    project_path: "{{ ansible_env.HOME }}/project"
     repo_name: Sozo-Training
     github_repo: https://github.com/PunMung-66/{{ repo_name }}.git
 

@@ -45,23 +45,11 @@
           - "{{ uv_bin }}"
           - tool
           - install
-          - --with
-          - dvc-gdrive
+          - --with dvc-gdrive
+          - --with "pyopenssl>=24.3.0"
+          - --with "cryptography>=43"
           - dvc
       when: dvc_check.rc != 0
-      changed_when: "'dvc' not in dvc_check.stdout"
-
-    - name: Ensure DVC Google Drive support is up to date
-      ansible.builtin.command:
-        argv:
-          - "{{ uv_bin }}"
-          - tool
-          - install
-          - --force
-          - --with
-          - "dvc[gdrive]"
-          - dvc
-      when: dvc_check.rc == 0
       changed_when: "'dvc' not in dvc_check.stdout"
 
     - name: Check whether Git is already installed
