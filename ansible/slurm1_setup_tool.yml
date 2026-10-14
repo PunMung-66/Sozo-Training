@@ -4,15 +4,10 @@
   gather_facts: true
 
   tasks:
-    - name: Get remote home directory
-      ansible.builtin.shell: 'printf "%s" "$HOME"'
-      register: remote_home
-      changed_when: false
-
     - name: Set uv paths
       ansible.builtin.set_fact:
-        uv_bin: "{{ remote_home.stdout }}/.local/bin/uv"
-        uv_dir: "{{ remote_home.stdout }}/.local/bin"
+        uv_bin: "{{ ansible_env.HOME }}/.local/bin/uv"
+        uv_dir: "{{ ansible_env.HOME }}/.local/bin"
 
     - name: Install uv if missing
       ansible.builtin.shell: |
@@ -24,7 +19,7 @@
 
     - name: Ensure local bin is on PATH in .bashrc
       ansible.builtin.lineinfile:
-        path: "{{ remote_home.stdout }}/.bashrc"
+        path: "{{ ansible_env.HOME }}/.bashrc"
         line: 'export PATH="$HOME/.local/bin:$PATH"'
         create: true
         mode: "0644"
@@ -70,7 +65,7 @@
 
     - name: Ensure local bin is on PATH in .profile
       ansible.builtin.lineinfile:
-        path: "{{ remote_home.stdout }}/.profile"
+        path: "{{ ansible_env.HOME }}/.profile"
         line: 'export PATH="$HOME/.local/bin:$PATH"'
         create: true
         mode: "0644"
