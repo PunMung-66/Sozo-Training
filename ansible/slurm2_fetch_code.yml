@@ -9,14 +9,3 @@
         version: main
         update: true
         force: true
-
-    - name: Create venv by uv
-      ansible.builtin.command:
-        argv:
-          - "{{ ansible_env.HOME }}/.local/bin/uv"
-          - venv
-          - "{{ project_path }}/{{ repo_name }}/venv"
-          - --python
-          - "3.12"
-      args:
-        creates: "{{ project_path }}/{{ repo_name }}/venv/bin/python"
