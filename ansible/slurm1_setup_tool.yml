@@ -1,0 +1,124 @@
+---
+- name: Set up Git, uv, and DVC on Slurm
+  hosts: slurm
+  gather_facts: true
+
+  tasks:
+    - name: Get remote home directory
+      ansible.builtin.shell: 'printf "%s" "$HOME"'
+      register: remote_home
+      changed_when: false
+
+    - name: Set uv paths
+      ansible.builtin.set_fact:
+        uv_bin: "{{ remote_home.stdout }}/.local/bin/uv"
+        uv_dir: "{{ remote_home.stdout }}/.local/bin"
+
+    - name: Install uv if missing
+      ansible.builtin.shell: |
+        set -euo pipefail
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+      args:
+        executable: /bin/bash
+        creates: "{{ uv_dir }}/uv"
+
+    - name: Ensure local bin is on PATH in .bashrc
+      ansible.builtin.lineinfile:
+        path: "{{ remote_home.stdout }}/.bashrc"
+        line: 'export PATH="$HOME/.local/bin:$PATH"'
+        create: true
+        mode: "0644"
+        state: present
+
+    - name: Check whether DVC is already installed
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_dir }}/dvc"
+          - "--version"
+      register: dvc_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install DVC with SSH support
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_bin }}"
+          - tool
+          - install
+          - --with
+          - dvc-ssh
+          - dvc
+      when: dvc_check.rc != 0
+      changed_when: "'dvc' not in dvc_check.stdout"
+
+    - name: Ensure DVC SSH support is up to date
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_bin }}"
+          - tool
+          - upgrade
+          - --with
+          - dvc-ssh
+          - dvc
+      register: dvc_upgrade
+      changed_when: "'Nothing to upgrade' not in dvc_upgrade.stdout"
+      when: dvc_check.rc == 0
+
+    - name: Check whether Git is already installed
+      ansible.builtin.command:
+        argv:
+          - git
+          - --version
+      register: git_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install Git when missing
+      become: true
+      ansible.builtin.package:
+        name: git
+        state: present
+      when: git_check.rc != 0
+
+    - name: Ensure local bin is on PATH in .profile
+      ansible.builtin.lineinfile:
+        path: "{{ remote_home.stdout }}/.profile"
+        line: 'export PATH="$HOME/.local/bin:$PATH"'
+        create: true
+        mode: "0644"
+        state: present
+
+    - name: Verify uv installation
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_bin }}"
+          - "--version"
+      register: uv_version
+      changed_when: false
+
+    - name: Verify DVC installation
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_dir }}/dvc"
+          - "--version"
+      register: dvc_version
+      changed_when: false
+
+    - name: Verify Git installation
+      ansible.builtin.command:
+        argv:
+          - git
+          - --version
+      register: git_version
+      changed_when: false
+
+    - name: Show installed versions
+      ansible.builtin.debug:
+        msg:
+          - "uv is ready: {{ uv_version.stdout }}"
+          - "DVC is ready: {{ dvc_version.stdout }}"
+          - "Git is ready: {{ git_version.stdout }}"
+
+    - name: Show PATH setup
+      ansible.builtin.debug:
+        msg: "Added {{ uv_dir }} to shell startup files. Reconnect SSH or reload your shell to use uv directly."

@@ -1,0 +1,27 @@
+---
+- name: Set up project on Slurm
+  hosts: slurm
+  tasks:
+    - name: Check whether DVC is installed
+      ansible.builtin.command:
+        argv:
+          - "{{ ansible_env.HOME }}/.local/bin/dvc"
+          - --version
+      register: dvc_check
+      changed_when: false
+      failed_when: false
+
+    - name: If DVC is not installed, run step.yml to install DVC
+      ansible.builtin.fail:
+        msg: "DVC is not installed. Please run step.yml to install DVC."
+      when: dvc_check.rc != 0
+
+    - name: Pull datasets using DVC
+      ansible.builtin.command:
+        argv:
+          - dvc
+          - pull
+      args:
+        chdir: "{{ project_path }}/{{ repo_name }}"
+      changed_when: false
+      when: dvc_check.rc == 0

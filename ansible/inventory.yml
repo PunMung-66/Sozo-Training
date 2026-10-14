@@ -1,0 +1,15 @@
+---
+slurm:
+  vars:
+    ansible_connection: ssh
+    ansible_python_interpreter: auto_silent
+    # project and destination paths
+    project_path: ~/project
+    repo_name: ansible-test
+    github_repo: https://github.com/PunMung-66/{{ repo_name }}.git
+
+  hosts:
+    benvm:
+      ansible_host: portal.slurm.cpe.kmutt.ac.th
+      ansible_user: 66070503445@cpe.kmutt.ac.th
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa

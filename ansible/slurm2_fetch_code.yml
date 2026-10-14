@@ -1,0 +1,22 @@
+---
+- name: Set up project on Slurm
+  hosts: slurm
+  tasks:
+    - name: Clone project repository
+      ansible.builtin.git:
+        repo: "{{ github_repo }}"
+        dest: "{{ project_path }}/{{ repo_name }}"
+        version: main
+        update: true
+        force: true
+
+    - name: Create venv by uv
+      ansible.builtin.command:
+        argv:
+          - "{{ ansible_env.HOME }}/.local/bin/uv"
+          - venv
+          - "{{ project_path }}/{{ repo_name }}/venv"
+          - --python
+          - "3.12"
+      args:
+        creates: "{{ project_path }}/{{ repo_name }}/venv/bin/python"
