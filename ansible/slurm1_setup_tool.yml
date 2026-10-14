@@ -39,30 +39,30 @@
       changed_when: false
       failed_when: false
 
-    - name: Install DVC with SSH support
+    - name: Install DVC with gdrive support
       ansible.builtin.command:
         argv:
           - "{{ uv_bin }}"
           - tool
           - install
           - --with
-          - dvc-ssh
+          - dvc-gdrive
           - dvc
       when: dvc_check.rc != 0
       changed_when: "'dvc' not in dvc_check.stdout"
 
-    - name: Ensure DVC SSH support is up to date
+    - name: Ensure DVC Google Drive support is up to date
       ansible.builtin.command:
         argv:
           - "{{ uv_bin }}"
           - tool
-          - upgrade
+          - install
+          - --force
           - --with
-          - dvc-ssh
+          - "dvc[gdrive]"
           - dvc
-      register: dvc_upgrade
-      changed_when: "'Nothing to upgrade' not in dvc_upgrade.stdout"
       when: dvc_check.rc == 0
+      changed_when: "'dvc' not in dvc_check.stdout"
 
     - name: Check whether Git is already installed
       ansible.builtin.command:
@@ -111,6 +111,27 @@
           - --version
       register: git_version
       changed_when: false
+
+    - name: Add Google Client ID and Secret to DVC config
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_dir }}/dvc"
+          - remote
+          - modify
+          - --local
+          - gdrive
+          - "{{ item.var }}"
+          - "{{ item.value }}"
+      args:
+        chdir: "{{ project_path }}/{{ repo_name }}"
+      no_log: true
+      loop:
+        - var: gdrive_client_id
+          value: "{{ google_client_id }}"
+        - var: gdrive_client_secret
+          value: "{{ google_client_secret }}"
+      changed_when: false
+
 
     - name: Show installed versions
       ansible.builtin.debug:

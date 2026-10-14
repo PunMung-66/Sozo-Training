@@ -1,0 +1,15 @@
+- name: Run batch job
+  hosts: slurm
+
+  tasks:
+    - name: Submit Slurm job
+      ansible.builtin.command:
+        argv:
+          - sbatch
+          - "{{ project_path }}/{{ repo_name }}/job_script.sh"
+      register: slurm_job_submission
+      changed_when: false
+
+    - name: Display Slurm job submission output
+      ansible.builtin.debug:
+        msg: "Slurm job submitted with output: {{ slurm_job_submission.stdout }}"
