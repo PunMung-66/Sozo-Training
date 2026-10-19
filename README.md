@@ -65,3 +65,13 @@ dvc pull
 ```
 
 The `.dvc` file is committed to Git; the dataset files are stored in the configured DVC remote. The Slurm setup uses the `gdrive` remote and Vault-protected Google credentials.
+
+## 6. Mount the Slurm filesystem locally
+
+Use `ansible/slurm_mount.sh` to mount your Slurm home directory locally over SSHFS. Install SSHFS first (`sudo apt install sshfs` on Ubuntu/Debian), then update the Slurm user, host, and local mount path near the top of the script. Run it from the project root:
+
+```bash
+./ansible/slurm_mount.sh mount
+./ansible/slurm_mount.sh status
+./ansible/slurm_mount.sh unmount
+```
