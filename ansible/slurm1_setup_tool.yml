@@ -95,26 +95,6 @@
       register: git_version
       changed_when: false
 
-    - name: Add Google Client ID and Secret to DVC config
-      ansible.builtin.command:
-        argv:
-          - "{{ uv_dir }}/dvc"
-          - remote
-          - modify
-          - --local
-          - gdrive
-          - "{{ item.var }}"
-          - "{{ item.value }}"
-      args:
-        chdir: "{{ project_path }}/{{ repo_name }}"
-      no_log: true
-      loop:
-        - var: gdrive_client_id
-          value: "{{ google_client_id }}"
-        - var: gdrive_client_secret
-          value: "{{ google_client_secret }}"
-      changed_when: false
-
 
     - name: Show installed versions
       ansible.builtin.debug:
@@ -138,10 +118,63 @@
     - name: Create venv by uv
       ansible.builtin.command:
         argv:
-          - "{{ ansible_env.HOME }}/.local/bin/uv"
+          - "{{ uv_bin }}"
           - venv
           - "{{ project_path }}/{{ repo_name }}/venv"
           - --python
           - "3.12"
       args:
         creates: "{{ project_path }}/{{ repo_name }}/venv/bin/python"
+
+    - name: Check whether pip exists in venv
+      ansible.builtin.command:
+        argv:
+          - "{{ project_path }}/{{ repo_name }}/venv/bin/python"
+          - -m
+          - pip
+          - --version
+      register: pip_check
+      changed_when: false
+      failed_when: false
+
+    - name: Bootstrap pip in venv
+      ansible.builtin.command:
+        argv:
+          - "{{ project_path }}/{{ repo_name }}/venv/bin/python"
+          - -m
+          - ensurepip
+          - --upgrade
+      when: pip_check.rc != 0
+      changed_when: "'Successfully installed' in pip_check.stdout"
+
+    - name: Install Python requirements into venv
+      ansible.builtin.command:
+        argv:
+          - "{{ project_path }}/{{ repo_name }}/venv/bin/python"
+          - -m
+          - pip
+          - install
+          - -r
+          - "{{ project_path }}/{{ repo_name }}/scripts/requirements.txt"
+      register: pip_install
+      changed_when: "'Successfully installed' in pip_install.stdout"
+
+    - name: Add Google Client ID and Secret to DVC config
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_dir }}/dvc"
+          - remote
+          - modify
+          - --local
+          - gdrive
+          - "{{ item.var }}"
+          - "{{ item.value }}"
+      args:
+        chdir: "{{ project_path }}/{{ repo_name }}"
+
+      loop:
+        - var: gdrive_client_id
+          value: "{{ google_client_id }}"
+        - var: gdrive_client_secret
+          value: "{{ google_client_secret }}"
+      changed_when: false
