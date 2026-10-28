@@ -1,6 +1,6 @@
 ---
 - name: Set up Git, uv, and DVC on Slurm
-  hosts: slurm
+  hosts: server
   gather_facts: true
 
   tasks:
@@ -111,7 +111,7 @@
       ansible.builtin.git:
         repo: "{{ github_repo }}"
         dest: "{{ project_path }}/{{ repo_name }}"
-        version: main
+        version: "{{ repo_branch | default('main') }}"
         update: true
         force: true
 
@@ -139,7 +139,6 @@
           - "{{ item.value }}"
       args:
         chdir: "{{ project_path }}/{{ repo_name }}"
-
       loop:
         - var: gdrive_client_id
           value: "{{ google_client_id }}"

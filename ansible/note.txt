@@ -1,0 +1,3 @@
+Rremove old cache of gdrive:
+rm -f .dvc/tmp/gdrive-user-credentials.json
+rm -rf ~/.cache/pydrive2fs

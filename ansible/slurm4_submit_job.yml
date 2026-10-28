@@ -1,6 +1,5 @@
 - name: Run batch job
-  hosts: slurm
-
+  hosts: server
   tasks:
     - name: Submit Slurm job
       ansible.builtin.command:

@@ -1,12 +1,13 @@
 ---
-slurm:
+server:
   vars:
     ansible_connection: ssh
     ansible_python_interpreter: auto_silent
     # project and destination paths
-    project_path: "{{ ansible_env.HOME }}/project"
+    project_path: "{{ ansible_env.HOME }}"
     repo_name: Sozo-Training
     github_repo: https://github.com/PunMung-66/{{ repo_name }}.git
+    repo_branch: main
 
     google_client_id: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -28,7 +29,17 @@ slurm:
           3334643366386136303934653031643738616665313830396264
 
   hosts:
-    benvm:
+    ben_slurm:
       ansible_host: portal.slurm.cpe.kmutt.ac.th
       ansible_user: 66070503445@cpe.kmutt.ac.th
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+
+    sozo_server:
+      ansible_host: 100.79.252.74
+      ansible_user: root
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+
+    bigV_server:
+      ansible_host: 10.35.22.41
+      ansible_user: senior_project
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
