@@ -26,7 +26,7 @@ INDEX = LOG_DIR / "index.tsv"
 # (key, playbook, description) - order is the normal workflow order
 ACTIONS = [
     ("setup",   "slurm1_setup_tool.yml",    "Setup server (uv, DVC, git, clone repo, venv)"),
-    ("code",    "slurm2_fetch_code.yml",    "Fetch / update code (git, checkout main)"),
+    ("code",    "slurm2_fetch_code.yml",    "Fetch / update code (git, choose branch)"),
     ("dataset", "slurm3_fetch_dataset.yml", "Fetch dataset (dvc pull)"),
     ("submit",  "slurm4_submit_job.yml",    "Submit Slurm job (sbatch)"),
 ]
@@ -52,10 +52,50 @@ def load_servers(group="server"):
     return sorted(set(hosts_of(group)))
 
 
-def run_playbook(server, key, playbook):
+def load_repository(server):
+    """Read the repository URL and default branch from the selected inventory host."""
+    out = subprocess.run(
+        ["ansible-inventory", "-i", INVENTORY, "--host", server],
+        capture_output=True, text=True,
+    )
+    if out.returncode != 0:
+        sys.exit(f"ansible-inventory failed:\n{out.stderr}")
+
+    variables = json.loads(out.stdout)
+    repo_name = variables.get("repo_name")
+    repo_url = variables.get("github_repo")
+    if not repo_url or not repo_name:
+        sys.exit(f"Inventory for '{server}' must define github_repo and repo_name.")
+
+    repo_url = repo_url.replace("{{ repo_name }}", repo_name)
+    return repo_url, variables.get("repo_branch", "main")
+
+
+def load_remote_branches(repo_url):
+    """Return branch names from the repository's remote HEAD refs."""
+    out = subprocess.run(
+        ["git", "ls-remote", "--heads", repo_url],
+        capture_output=True, text=True,
+    )
+    if out.returncode != 0:
+        sys.exit(f"Could not list branches for {repo_url}:\n{out.stderr}")
+
+    branches = sorted(
+        line.split("\t", 1)[1][len("refs/heads/"):]
+        for line in out.stdout.splitlines()
+        if "\trefs/heads/" in line
+    )
+    if not branches:
+        sys.exit(f"No remote branches found for {repo_url}.")
+    return branches
+
+
+def run_playbook(server, key, playbook, repo_branch=None):
     """Run one playbook, stream output, save log named by its sha256. Returns exit code."""
     LOG_DIR.mkdir(exist_ok=True)
     cmd = ["ansible-playbook", "-i", INVENTORY, f"./{playbook}", "--limit", server]
+    if repo_branch is not None:
+        cmd.extend(["--extra-vars", json.dumps({"repo_branch": repo_branch})])
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lines = [f"=== {ts} | server={server} | action={key} ===\n", f"$ {' '.join(cmd)}\n\n"]
     print("".join(lines), end="")
@@ -96,13 +136,31 @@ def run_menu():
         print("Nothing selected.")
         return
 
+    repo_branch = None
+    if any(key in ("setup", "code") for key, _ in picked):
+        repo_url, default_branch = load_repository(server)
+        branches = load_remote_branches(repo_url)
+        print(f"Remote repository has {len(branches)} branches.")
+        repo_branch = questionary.select(
+            "Select repository branch:",
+            choices=branches,
+            default=default_branch if default_branch in branches else None,
+        ).ask()
+        if repo_branch is None:
+            print("Cancelled.")
+            return
+
     summary = " -> ".join(k for k, _ in picked)
-    if not questionary.confirm(f"Run [{summary}] on {server}?", default=False).ask():
+    branch_summary = f" using branch '{repo_branch}'" if repo_branch else ""
+    if not questionary.confirm(
+        f"Run [{summary}] on {server}{branch_summary}?", default=False
+    ).ask():
         print("Cancelled.")
         return
 
     for key, pb in picked:          # keeps workflow order, stops on first failure
-        if run_playbook(server, key, pb) != 0:
+        branch = repo_branch if key in ("setup", "code") else None
+        if run_playbook(server, key, pb, repo_branch=branch) != 0:
             print(f"Stopped: '{key}' failed.")
             break
 
