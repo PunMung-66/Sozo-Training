@@ -1,12 +1,43 @@
 #!/bin/bash
-#SBATCH --job-name=example-job
-#SBATCH --partition=cpu
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=8G
-#SBATCH --time=00:05:00
-#SBATCH --output=result/running%j/job_%j.out
-#SBATCH --error=result/running%j/job_%j.err
+#SBATCH --job-name=inpaint
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
+#SBATCH --gres=gpu:1
+#SBATCH --time=04:00:00
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
 
-echo "Job started on $(hostname)"
-echo "Running as user: $(whoami)"
+source ~/project/Sozo-Training/venv/bin/activate
+cd ~/project/Sozo-Training/script || exit 1
+mkdir -p logs
+#!/bin/bash
+#SBATCH --job-name=inpaint
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
+#SBATCH --gres=gpu:1
+#SBATCH --time=04:00:00
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
+
+source ~/project/Sozo-Training/venv/bin/activate
+cd ~/project/Sozo-Training/script || exit 1
+mkdir -p logs
+
+export HF_HUB_OFFLINE=1
+MODEL=${MODEL:-sdxl}
+
+nvidia-smi
+python inpaint_batch.py \
+    --model "$MODEL" \
+    --root  ~/project/Sozo-Training/script/inputs \
+    --out   ~/project/Sozo-Training/script/outputs/$MODEL
+export HF_HUB_OFFLINE=1
+MODEL=${MODEL:-sdxl}
+
+nvidia-smi
+python inpaint_batch.py \
+    --model "$MODEL" \
+    --root  ~/project/Sozo-Training/script/inputs \
+    --out   ~/project/Sozo-Training/script/outputs/$MODEL

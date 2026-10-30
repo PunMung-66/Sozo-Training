@@ -1,6 +1,6 @@
 ---
 - name: Set up project on Slurm
-  hosts: slurm
+  hosts: server
   tasks:
     - name: Set uv paths
       ansible.builtin.set_fact:
@@ -15,9 +15,9 @@
       changed_when: false
       failed_when: false
 
-    - name: If DVC is not installed, run step.yml to install DVC
+    - name: If DVC is not installed, run setup playbook to install DVC
       ansible.builtin.fail:
-        msg: "DVC is not installed. Please run step.yml to install DVC."
+        msg: "DVC is not installed. Please run slurm1_setup_tool.yml to install DVC."
       when: dvc_check.rc != 0
 
     - name: Pull datasets using DVC

@@ -1,6 +1,6 @@
 ---
 - name: Set up Git, uv, and DVC on Slurm
-  hosts: slurm
+  hosts: server
   gather_facts: true
 
   tasks:
@@ -95,26 +95,6 @@
       register: git_version
       changed_when: false
 
-    - name: Add Google Client ID and Secret to DVC config
-      ansible.builtin.command:
-        argv:
-          - "{{ uv_dir }}/dvc"
-          - remote
-          - modify
-          - --local
-          - gdrive
-          - "{{ item.var }}"
-          - "{{ item.value }}"
-      args:
-        chdir: "{{ project_path }}/{{ repo_name }}"
-      no_log: true
-      loop:
-        - var: gdrive_client_id
-          value: "{{ google_client_id }}"
-        - var: gdrive_client_secret
-          value: "{{ google_client_secret }}"
-      changed_when: false
-
 
     - name: Show installed versions
       ansible.builtin.debug:
@@ -131,17 +111,37 @@
       ansible.builtin.git:
         repo: "{{ github_repo }}"
         dest: "{{ project_path }}/{{ repo_name }}"
-        version: main
+        version: "{{ repo_branch | default('main') }}"
         update: true
         force: true
 
     - name: Create venv by uv
       ansible.builtin.command:
         argv:
-          - "{{ ansible_env.HOME }}/.local/bin/uv"
+          - "{{ uv_bin }}"
           - venv
           - "{{ project_path }}/{{ repo_name }}/venv"
           - --python
           - "3.12"
+          - --seed
       args:
         creates: "{{ project_path }}/{{ repo_name }}/venv/bin/python"
+
+    - name: Add Google Client ID and Secret to DVC config
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_dir }}/dvc"
+          - remote
+          - modify
+          - --local
+          - gdrive
+          - "{{ item.var }}"
+          - "{{ item.value }}"
+      args:
+        chdir: "{{ project_path }}/{{ repo_name }}"
+      loop:
+        - var: gdrive_client_id
+          value: "{{ google_client_id }}"
+        - var: gdrive_client_secret
+          value: "{{ google_client_secret }}"
+      changed_when: false

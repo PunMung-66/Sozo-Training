@@ -1,6 +1,6 @@
 ---
 - name: Set up project on Slurm
-  hosts: slurm
+  hosts: server
   tasks:
     - name: Check whether GIT is installed
       ansible.builtin.command:
@@ -26,10 +26,10 @@
         msg: "Project directory does not exist."
       when: not project_dir.stat.exists
 
-    - name: Clone project repository
+    - name: Fetch and checkout repository branch
       ansible.builtin.git:
         repo: "{{ github_repo }}"
         dest: "{{ project_path }}/{{ repo_name }}"
-        version: main
+        version: "{{ repo_branch | default('main') }}"
         update: true
         force: true

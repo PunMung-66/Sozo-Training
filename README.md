@@ -47,6 +47,8 @@ ansible-playbook slurm4_submit_job.yml
 
 Add `--limit HOST` to a command to target one Slurm account. The setup playbook installs Git, `uv`, and DVC and clones the project. The fetch-code playbook updates the remote checkout from `main` and can overwrite changes made there. The dataset playbook runs `dvc pull`; the final playbook submits `slurm/job.sbatch` with `sbatch`. Job output is written under `~/result/running` on Slurm.
 
+When using `ansible/sozo_ctl.py`, selecting setup or fetch-code lists the remote repository branches and lets you choose which branch to clone or update. Direct playbook runs continue to use `repo_branch` from `ansible/inventory.yml` (default: `main`).
+
 ## 5. Track and transfer data with DVC
 
 Run these from the project root after configuring the DVC remote:
@@ -65,3 +67,13 @@ dvc pull
 ```
 
 The `.dvc` file is committed to Git; the dataset files are stored in the configured DVC remote. The Slurm setup uses the `gdrive` remote and Vault-protected Google credentials.
+
+## 6. Mount the Slurm filesystem locally
+
+Use `ansible/slurm_mount.sh` to mount your Slurm home directory locally over SSHFS. Install SSHFS first (`sudo apt install sshfs` on Ubuntu/Debian), then update the Slurm user, host, and local mount path near the top of the script. Run it from the project root:
+
+```bash
+./ansible/slurm_mount.sh mount
+./ansible/slurm_mount.sh status
+./ansible/slurm_mount.sh unmount
+```
