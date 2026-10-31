@@ -130,6 +130,17 @@
       args:
         creates: "{{ project_path }}/{{ repo_name }}/venv/bin/python"
 
+    - name: Install project Python requirements
+      ansible.builtin.command:
+        argv:
+          - "{{ uv_bin }}"
+          - pip
+          - install
+          - --python
+          - "{{ project_path }}/{{ repo_name }}/venv/bin/python"
+          - --requirements
+          - "{{ project_path }}/{{ repo_name }}/scripts/requirement.txt"
+
     - name: Add Google Client ID and Secret to DVC config
       ansible.builtin.command:
         argv:
