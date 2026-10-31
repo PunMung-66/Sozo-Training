@@ -31,7 +31,7 @@ ACTIONS = [
     ("setup",   "slurm1_setup_tool.yml",    "Setup server (uv, DVC, git, clone repo, venv)"),
     ("code",    "slurm2_fetch_code.yml",    "Fetch / update code (git, choose branch)"),
     ("dataset", "slurm3_fetch_dataset.yml", "Fetch dataset (dvc pull)"),
-    ("submit",  "slurm4_submit_job.yml",    "Submit Slurm job (sbatch)"),
+    ("submit",  "slurm4_submit_job.yml",    "Run a Slurm job or shell script"),
 ]
 
 
@@ -94,7 +94,7 @@ def load_remote_branches(repo_url):
 
 
 def scan_job_files(server):
-    """Find Slurm batch files in the selected server's project checkout."""
+    """Find Slurm batch files and shell scripts in the selected server's checkout."""
     cmd = [
         "ansible-playbook", "-i", INVENTORY, "./slurm4_submit_job.yml",
         "--limit", server,
@@ -185,13 +185,13 @@ def run_menu():
 
     job_file = None
     if any(key == "submit" for key, _ in picked):
-        print("Scanning the remote project for .sbatch files...")
+        print("Scanning the remote project for .sbatch and .sh files...")
         job_files = scan_job_files(server)
         if not job_files:
-            print("No .sbatch files found in the remote project.")
+            print("No .sbatch or .sh files found in the remote project.")
             return
         job_file = questionary.select(
-            "Select Slurm job file to submit:",
+            "Select job script to run:",
             choices=[
                 questionary.Choice(path, value=path)
                 for path in job_files

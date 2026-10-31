@@ -18,16 +18,31 @@
         msg: "SOZO_JOB_FILES_B64={{ slurm_job_files.files | map(attribute='path') | list | to_json | b64encode }}"
       when: list_job_files | default(false) | bool
 
-    - name: Submit Slurm job
+    - name: Check whether selected script has Slurm directives
       ansible.builtin.command:
         argv:
-          - sbatch
+          - grep
+          - -Eq
+          - '^[[:space:]]*#SBATCH([[:space:]]|$)'
           - "{{ job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch') }}"
-      register: slurm_job_submission
+      register: slurm_directive_check
+      changed_when: false
+      failed_when: slurm_directive_check.rc not in [0, 1]
+      when: not (list_job_files | default(false) | bool)
+
+    - name: Run selected script
+      ansible.builtin.command:
+        argv: >-
+          {{
+            ['sbatch', job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch')]
+            if slurm_directive_check.rc == 0
+            else ['bash', job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch')]
+          }}
+      register: job_execution
       changed_when: false
       when: not (list_job_files | default(false) | bool)
 
-    - name: Display Slurm job submission output
+    - name: Display job execution output
       ansible.builtin.debug:
-        msg: "Slurm job submitted with output: {{ slurm_job_submission.stdout }}, result: ~/result/running"
+        msg: "{{ 'Submitted to Slurm' if slurm_directive_check.rc == 0 else 'Ran with bash' }}: {{ job_execution.stdout }}"
       when: not (list_job_files | default(false) | bool)
