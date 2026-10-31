@@ -42,10 +42,14 @@ Run these from the `ansible` directory:
 ansible-playbook slurm1_setup_tool.yml
 ansible-playbook slurm2_fetch_code.yml
 ansible-playbook slurm3_fetch_dataset.yml
-ansible-playbook slurm4_submit_job.yml
 ```
 
-Add `--limit HOST` to a command to target one Slurm account. The setup playbook installs Git, `uv`, and DVC and clones the project. The fetch-code playbook updates the remote checkout from `main` and can overwrite changes made there. The dataset playbook runs `dvc pull`; the final playbook submits `slurm/job.sbatch` with `sbatch`. Job output is written under `~/result/running` on Slurm.
+Add `--limit HOST` to a command to target one server. The setup playbook
+installs Git, `uv`, and DVC and clones the project. The fetch-code playbook
+updates the remote checkout from `main` and can overwrite changes made there.
+The dataset playbook runs `dvc pull`. Image generation is run directly on a
+regular Linux server with the Bash launcher described below; it does not require
+Slurm.
 
 When using `ansible/sozo_ctl.py`, selecting setup or fetch-code lists the remote repository branches and lets you choose which branch to clone or update. Direct playbook runs continue to use `repo_branch` from `ansible/inventory.yml` (default: `main`).
 
@@ -76,4 +80,74 @@ Use `ansible/slurm_mount.sh` to mount your Slurm home directory locally over SSH
 ./ansible/slurm_mount.sh mount
 ./ansible/slurm_mount.sh status
 ./ansible/slurm_mount.sh unmount
+```
+
+## 7. Generate an inpainted image with Kandinsky 2.2
+
+Use Python 3.10 or newer. From the project root, create and activate a virtual
+environment and install all generation dependencies. `scripts/requirement.txt`
+includes the PyTorch CUDA 12.8 package source and a PyTorch version that supports
+the RTX 5080's Blackwell architecture:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r scripts/requirement.txt
+```
+
+To check driver visibility and PyTorch CUDA support at any time:
+
+```bash
+python scripts/check_gpu.py
+nvidia-smi
+```
+
+The generator runs the same check automatically before each run that may use
+CUDA (`--device auto` or `--device cuda`). `nvidia-smi` seeing a GPU does not
+guarantee that PyTorch can use it. Put the source image and a same-sized mask at
+`scripts/inputs/image.png` and `scripts/inputs/mask.png`. White mask pixels are
+regenerated and black pixels are preserved; image dimensions must be multiples
+of 64.
+
+Run the generator from the project root. It automatically uses CUDA when
+PyTorch reports a usable GPU, with CPU model offload enabled; otherwise it runs
+on CPU. Use `--device cuda` to require CUDA or `--device cpu` to force CPU:
+
+```bash
+python scripts/inpaint.py \
+  --image scripts/inputs/image.png \
+  --mask scripts/inputs/mask.png \
+  --prompt "a black cat with glowing eyes, highly detailed" \
+  --negative "bad anatomy, deformed, ugly, blurry" \
+  --output outputs/inpainted.png \
+  --seed 1234
+```
+
+For an initial online run, the two Kandinsky 2.2 checkpoints download from
+Hugging Face and are cached locally. After they are cached, they can be used
+offline by setting `HF_HUB_OFFLINE=1`. `slurm/job.sbatch` runs the same script
+with Kandinsky 2.2 when executed directly with Bash on a regular Linux server.
+
+### Run on a regular Linux server
+
+`slurm/job.sbatch` is used here as a regular Bash launcher only; do not submit it
+with `sbatch`. Edit its configuration section to set the source image, mask,
+prompt, output, and generation options, then run:
+
+```bash
+bash slurm/job.sbatch
+```
+
+The settings can also be overridden for a single run using environment
+variables. CUDA is checked by the generator automatically when `DEVICE` is
+`auto` or `cuda`; `auto` falls back to CPU if PyTorch cannot use the GPU.
+
+```bash
+PROMPT="a black cat" \
+INPUT_IMAGE="scripts/inputs/image.png" \
+MASK_IMAGE="scripts/inputs/mask.png" \
+OUTPUT_IMAGE="outputs/cat.png" \
+DEVICE=auto \
+bash slurm/job.sbatch
 ```
