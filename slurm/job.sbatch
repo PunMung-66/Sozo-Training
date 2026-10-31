@@ -6,12 +6,12 @@
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --time=02:00:00
-#SBATCH --output=slurm/%x_%j.out
-#SBATCH --error=slurm/%x_%j.err
+#SBATCH --output=~output/%x_%j.out
+#SBATCH --error=~output/%x_%j.err
 
 set -Eeuo pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$PROJECT_ROOT"
 
 INPUT_IMAGE="${INPUT_IMAGE:-scripts/inputs/image.png}"
