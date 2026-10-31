@@ -14,7 +14,7 @@ DEVICE="auto"
 STEPS=50
 
 # Use the virtual environment if it exists
-[ -f .venv/bin/activate ] && source .venv/bin/activate
+[ -f venv/bin/activate ] && source venv/bin/activate
 
 mkdir -p outputs
 

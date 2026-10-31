@@ -3,5 +3,6 @@
 diffusers>=0.30
 transformers>=4.44
 accelerate>=0.33
+sentencepiece>=0.2.0
 torch>=2.7
 pillow>=9.0.0

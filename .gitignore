@@ -1,4 +1,4 @@
 /datasets/data/
 /ansible/.vault_pass
 /ansible/logs/
-.venv
+venv
