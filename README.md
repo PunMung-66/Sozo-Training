@@ -47,7 +47,7 @@ ansible-playbook slurm4_submit_job.yml
 
 Add `--limit HOST` to a command to target one Slurm account. The setup playbook installs Git, `uv`, and DVC and clones the project. The fetch-code playbook updates the remote checkout from `main` and can overwrite changes made there. The dataset playbook runs `dvc pull`; the final playbook submits `slurm/job.sbatch` with `sbatch`. Job output is written under `~/result/running` on Slurm.
 
-When using `ansible/sozo_ctl.py`, selecting setup or fetch-code lists the remote repository branches and lets you choose which branch to clone or update. Direct playbook runs continue to use `repo_branch` from `ansible/inventory.yml` (default: `main`).
+When using `ansible/sozo_ctl.py`, selecting setup or fetch-code lists the remote repository branches and lets you choose which branch to clone or update. Selecting submit scans the remote checkout for `.sbatch` files and lets you choose which file to run. Direct playbook runs continue to use `repo_branch` from `ansible/inventory.yml` (default: `main`) and submit `slurm/job.sbatch` unless `job_file` is provided.
 
 ## 5. Track and transfer data with DVC
 

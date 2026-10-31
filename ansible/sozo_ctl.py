@@ -10,8 +10,11 @@ or:
 Flow: pick a server -> tick actions -> confirm -> output is shown live and saved
 as logs/<sha256>.log (filename = hash of content). logs/index.tsv keeps a history.
 """
+import base64
+import binascii
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -90,12 +93,42 @@ def load_remote_branches(repo_url):
     return branches
 
 
-def run_playbook(server, key, playbook, repo_branch=None):
+def scan_job_files(server):
+    """Find Slurm batch files in the selected server's project checkout."""
+    cmd = [
+        "ansible-playbook", "-i", INVENTORY, "./slurm4_submit_job.yml",
+        "--limit", server,
+        "--extra-vars", json.dumps({"list_job_files": True}),
+    ]
+    out = subprocess.run(cmd, capture_output=True, text=True)
+    if out.returncode != 0:
+        details = "\n".join(part for part in (out.stdout, out.stderr) if part)
+        sys.exit(f"Could not scan for Slurm job files:\n{details}")
+
+    match = re.search(r"SOZO_JOB_FILES_B64=([A-Za-z0-9+/=]+)", out.stdout)
+    if not match:
+        sys.exit("Ansible scan completed but returned no Slurm job file list.")
+    try:
+        payload = base64.b64decode(match.group(1), validate=True).decode()
+        paths = json.loads(payload)
+    except (binascii.Error, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        sys.exit(f"Could not read scanned Slurm job files: {exc}")
+    if not isinstance(paths, list) or not all(isinstance(path, str) for path in paths):
+        sys.exit("Ansible returned an invalid list of Slurm job files.")
+    return sorted(paths)
+
+
+def run_playbook(server, key, playbook, repo_branch=None, job_file=None):
     """Run one playbook, stream output, save log named by its sha256. Returns exit code."""
     LOG_DIR.mkdir(exist_ok=True)
     cmd = ["ansible-playbook", "-i", INVENTORY, f"./{playbook}", "--limit", server]
+    extra_vars = {}
     if repo_branch is not None:
-        cmd.extend(["--extra-vars", json.dumps({"repo_branch": repo_branch})])
+        extra_vars["repo_branch"] = repo_branch
+    if job_file is not None:
+        extra_vars["job_file"] = job_file
+    if extra_vars:
+        cmd.extend(["--extra-vars", json.dumps(extra_vars)])
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lines = [f"=== {ts} | server={server} | action={key} ===\n", f"$ {' '.join(cmd)}\n\n"]
     print("".join(lines), end="")
@@ -150,7 +183,27 @@ def run_menu():
             print("Cancelled.")
             return
 
+    job_file = None
+    if any(key == "submit" for key, _ in picked):
+        print("Scanning the remote project for .sbatch files...")
+        job_files = scan_job_files(server)
+        if not job_files:
+            print("No .sbatch files found in the remote project.")
+            return
+        job_file = questionary.select(
+            "Select Slurm job file to submit:",
+            choices=[
+                questionary.Choice(path, value=path)
+                for path in job_files
+            ],
+        ).ask()
+        if job_file is None:
+            print("Cancelled.")
+            return
+
     summary = " -> ".join(k for k, _ in picked)
+    if job_file:
+        summary += f" ({job_file.rsplit('/', 1)[-1]})"
     branch_summary = f" using branch '{repo_branch}'" if repo_branch else ""
     if not questionary.confirm(
         f"Run [{summary}] on {server}{branch_summary}?", default=False
@@ -160,7 +213,8 @@ def run_menu():
 
     for key, pb in picked:          # keeps workflow order, stops on first failure
         branch = repo_branch if key in ("setup", "code") else None
-        if run_playbook(server, key, pb, repo_branch=branch) != 0:
+        selected_job = job_file if key == "submit" else None
+        if run_playbook(server, key, pb, repo_branch=branch, job_file=selected_job) != 0:
             print(f"Stopped: '{key}' failed.")
             break
 

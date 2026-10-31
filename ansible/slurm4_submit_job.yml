@@ -1,14 +1,33 @@
 - name: Run batch job
   hosts: server
+  gather_facts: true
   tasks:
+    - name: Scan project for Slurm job files
+      ansible.builtin.find:
+        paths: "{{ project_path }}/{{ repo_name }}/slurm"
+        patterns:
+          - "*.sbatch"
+          - "*.sh"
+        recurse: true
+        file_type: file
+      register: slurm_job_files
+      when: list_job_files | default(false) | bool
+
+    - name: Display scanned Slurm job files
+      ansible.builtin.debug:
+        msg: "SOZO_JOB_FILES_B64={{ slurm_job_files.files | map(attribute='path') | list | to_json | b64encode }}"
+      when: list_job_files | default(false) | bool
+
     - name: Submit Slurm job
       ansible.builtin.command:
         argv:
           - sbatch
-          - "{{ project_path }}/{{ repo_name }}/slurm/job.sbatch"
+          - "{{ job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch') }}"
       register: slurm_job_submission
       changed_when: false
+      when: not (list_job_files | default(false) | bool)
 
     - name: Display Slurm job submission output
       ansible.builtin.debug:
         msg: "Slurm job submitted with output: {{ slurm_job_submission.stdout }}, result: ~/result/running"
+      when: not (list_job_files | default(false) | bool)
