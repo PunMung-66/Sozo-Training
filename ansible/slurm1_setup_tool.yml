@@ -40,9 +40,12 @@
           - "{{ uv_bin }}"
           - tool
           - install
-          - --with dvc-gdrive
-          - --with "pyopenssl>=24.3.0"
-          - --with "cryptography>=43"
+          - --with
+          - dvc-gdrive
+          - --with
+          - pyopenssl>=24.3.0
+          - --with
+          - cryptography>=43
           - dvc
       when: dvc_check.rc != 0
       changed_when: "'dvc' not in dvc_check.stdout"
