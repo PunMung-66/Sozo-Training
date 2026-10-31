@@ -127,21 +127,21 @@ python scripts/inpaint.py \
 For an initial online run, the two Kandinsky 2.2 checkpoints download from
 Hugging Face and are cached locally. After they are cached, they can be used
 offline by setting `HF_HUB_OFFLINE=1`. `slurm/job.sbatch` runs the same script
-with Kandinsky 2.2 when executed directly with Bash on a regular Linux server.
+with Kandinsky 2.2 using the configured Slurm resources.
 
-### Run on a regular Linux server
+### Run the Kandinsky job
 
-`slurm/job.sbatch` is used here as a regular Bash launcher only; do not submit it
-with `sbatch`. Edit its configuration section to set the source image, mask,
-prompt, output, and generation options, then run:
+Submit the script from the project root on Slurm:
 
 ```bash
-bash slurm/job.sbatch
+sbatch slurm/job.sbatch
 ```
 
-The settings can also be overridden for a single run using environment
-variables. CUDA is checked by the generator automatically when `DEVICE` is
-`auto` or `cuda`; `auto` falls back to CPU if PyTorch cannot use the GPU.
+It preserves the existing Slurm resource profile and uses the Kandinsky
+configuration from `slurm/job_kandinsky.sh`. Input image, mask, prompt, output,
+device, and step count can be overridden with environment variables. CUDA is
+checked by the generator automatically when `DEVICE` is `auto` or `cuda`;
+`auto` falls back to CPU if PyTorch cannot use the GPU.
 
 ```bash
 PROMPT="a black cat" \
@@ -149,5 +149,12 @@ INPUT_IMAGE="scripts/inputs/image.png" \
 MASK_IMAGE="scripts/inputs/mask.png" \
 OUTPUT_IMAGE="outputs/cat.png" \
 DEVICE=auto \
+bash slurm/job.sbatch
+```
+
+You can also run it directly with Bash for local testing; Slurm directives are
+ignored in that case:
+
+```bash
 bash slurm/job.sbatch
 ```
