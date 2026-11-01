@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from PIL import Image
 
 PRIOR_MODEL_ID = "kandinsky-community/kandinsky-2-2-prior"
-INPAINT_MODEL_ID = "kandinsky-community/kandinsky-2-2-inpainting"
+INPAINT_MODEL_ID = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
 
 
 def generate_inpainting(
