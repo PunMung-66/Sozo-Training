@@ -6,8 +6,8 @@
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --time=02:00:00
-#SBATCH --output=output/%x_%j.out
-#SBATCH --error=output/%x_%j.err
+#SBATCH --output=~/Sozo-Training/outputs/log/%x_%j.out
+#SBATCH --error=~/Sozo-Training/outputs/log/%x_%j.err
 
 set -Eeuo pipefail
 
@@ -16,7 +16,7 @@ cd "$PROJECT_ROOT"
 
 INPUT_IMAGE="${INPUT_IMAGE:-scripts/inputs/image.png}"
 MASK_IMAGE="${MASK_IMAGE:-scripts/inputs/mask.png}"
-OUTPUT_IMAGE="${OUTPUT_IMAGE:-outputs/inpainted_${SLURM_JOB_ID:-$(date +%Y%m%d_%H%M%S)}.png}"
+OUTPUT_IMAGE="${OUTPUT_IMAGE:-outputs/model/inpainted_${SLURM_JOB_ID:-$(date +%Y%m%d_%H%M%S)}.png}"
 PROMPT="${PROMPT:-a black cat with glowing eyes, highly detailed}"
 NEGATIVE_PROMPT="${NEGATIVE_PROMPT:-bad anatomy, deformed, ugly, blurry}"
 DEVICE="${DEVICE:-auto}"
