@@ -33,3 +33,8 @@
         version: "{{ repo_branch | default('main') }}"
         update: true
         force: true
+      register: git_result
+
+    - name: Show update result
+      ansible.builtin.debug:
+        msg: "Before: {{ git_result.before }} -> After: {{ git_result.after }}"
