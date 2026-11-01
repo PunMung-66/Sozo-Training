@@ -2,7 +2,9 @@
 # Run from the project root with: bash slurm/job.sbatch
 
 set -Eeuo pipefail
-cd "$(dirname "$0")/.."
+
+PROJECT_ROOT="$HOME/Sozo-Training"
+cd "$PROJECT_ROOT"
 
 # Edit these values
 INPUT_IMAGE="scripts/inputs/image.png"

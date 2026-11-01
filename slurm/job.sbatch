@@ -11,7 +11,7 @@
 
 set -Eeuo pipefail
 
-PROJECT_ROOT="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+PROJECT_ROOT="$HOME/Sozo-Training"
 cd "$PROJECT_ROOT"
 
 INPUT_IMAGE="${INPUT_IMAGE:-scripts/inputs/image.png}"
