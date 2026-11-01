@@ -70,10 +70,12 @@ The `.dvc` file is committed to Git; the dataset files are stored in the configu
 
 ## 6. Mount the Slurm filesystem locally
 
-Use `ansible/slurm_mount.sh` to mount your Slurm home directory locally over SSHFS. Install SSHFS first (`sudo apt install sshfs` on Ubuntu/Debian), then update the Slurm user, host, and local mount path near the top of the script. Run it from the project root:
+Use `ansible/slurm_mount.sh` to mount a Slurm directory locally over SSHFS. Install SSHFS first (`sudo apt install sshfs` on Ubuntu/Debian), then run it from the project root:
 
 ```bash
 ./ansible/slurm_mount.sh mount
 ./ansible/slurm_mount.sh status
 ./ansible/slurm_mount.sh unmount
 ```
+
+When `mount` runs in a terminal, it prompts for the Slurm SSH user, Slurm host, remote path, and local mount path. Press Enter at a prompt to keep its displayed default. The current defaults are user `66070503445@cpe.kmutt.ac.th`, host `portal.slurm.cpe.kmutt.ac.th`, the remote user's home directory (blank remote path), and `${HOME}/BenSlurm` locally. The remote path is the directory on Slurm; the local mount path is where that remote directory appears on your computer. The script creates the local directory if needed. `status` and `unmount` prompt for the local mount path so you can target the same mount. For non-interactive runs, set `SLURM_USER`, `SLURM_HOST`, `REMOTE_PATH`, and `MOUNT_PATH` in the environment; the SSH key can also be overridden with `SSH_KEY`.
