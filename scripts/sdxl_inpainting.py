@@ -66,7 +66,6 @@ def generate_inpainting(
     )
     if use_cuda:
         pipeline.enable_model_cpu_offload()
-        pipeline.enable_vae_tiling()
     else:
         pipeline.to(device)
 
