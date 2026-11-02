@@ -2,3 +2,9 @@
 /ansible/.vault_pass
 /ansible/logs/
 venv
+
+/slurm/outputs/images/**
+!/slurm/outputs/images/note.txt
+
+/slurm/outputs/logs/**
+!/slurm/outputs/logs/note.txt
