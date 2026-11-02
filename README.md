@@ -82,7 +82,7 @@ Use `ansible/slurm_mount.sh` to mount your Slurm home directory locally over SSH
 ./ansible/slurm_mount.sh unmount
 ```
 
-## 7. Generate an inpainted image with Kandinsky 2.2 or SDXL
+## 7. Generate an inpainted image with Kandinsky 2.2, SDXL, or FLUX.1 Fill
 
 Use Python 3.10 or newer. From the project root, create and activate a virtual
 environment and install all generation dependencies. `scripts/requirement.txt`
@@ -108,7 +108,8 @@ CUDA (`--device auto` or `--device cuda`). `nvidia-smi` seeing a GPU does not
 guarantee that PyTorch can use it. Put the source image and a same-sized mask at
 `scripts/inputs/image.png` and `scripts/inputs/mask.png`. White mask pixels are
 regenerated and black pixels are preserved. Kandinsky requires image dimensions
-to be multiples of 64; SDXL requires multiples of 8.
+to be multiples of 64; SDXL requires multiples of 8; FLUX.1 Fill requires
+multiples of 16.
 
 Run the generator from the project root. It automatically uses CUDA when
 PyTorch reports a usable GPU, with CPU model offload enabled; otherwise it runs
@@ -125,29 +126,51 @@ python scripts/inpaint.py \
   --seed 1234
 ```
 
-Use `--model sdxl` to select Stable Diffusion XL inpainting instead. Kandinsky
-remains the default if `--model` is omitted. By default Kandinsky uses 50 steps
-and a guidance scale of 4.0; SDXL uses 30 steps and 7.5. Override either value
-with `--steps` or `--guidance-scale`.
+Use `--model sdxl` to select Stable Diffusion XL inpainting or `--model
+flux-fill` to select FLUX.1 Fill [dev]. Kandinsky remains the default if
+`--model` is omitted. Defaults are 50 steps and guidance scale 4.0 for
+Kandinsky, 30 and 7.5 for SDXL, and 50 and 30.0 for FLUX.1 Fill. Override them
+with `--steps` or `--guidance-scale`. FLUX.1 Fill does not accept a negative
+prompt, so omit `--negative` for that model.
+
+For example:
+
+```bash
+python scripts/inpaint.py \
+  --model flux-fill \
+  --image scripts/inputs/image.png \
+  --mask scripts/inputs/mask.png \
+  --prompt "a black cat with glowing eyes, highly detailed" \
+  --output outputs/flux_fill.png \
+  --device auto \
+  --seed 1234
+```
+
+FLUX.1 Fill [dev] is a large (12-billion-parameter) gated model. Accept its
+license and configure Hugging Face access before the first download. CUDA runs
+use CPU model offload to reduce GPU memory use; they still need substantial
+system RAM and GPU memory. The model's license governs how generated outputs
+may be used. `scripts/requirement.txt` requires Diffusers 0.32.0 or newer for
+`FluxFillPipeline`; reinstall the requirements in your environment to upgrade
+an older Diffusers version.
 
 On the first online run, the selected model's checkpoint(s) download from
 Hugging Face and are cached locally. Once cached, they can be used offline by
-setting `HF_HUB_OFFLINE=1`. `slurm/job.sbatch` runs the same script with
-Kandinsky 2.2 using the configured Slurm resources.
+setting `HF_HUB_OFFLINE=1`.
 
 ### Run the Kandinsky job
 
 Submit the script from the project root on Slurm:
 
 ```bash
-sbatch slurm/job.sbatch
+sbatch slurm/job_kandinsky.sbatch
 ```
 
 It preserves the existing Slurm resource profile and uses the Kandinsky
-configuration from `slurm/job_kandinsky.sh`. Input image, mask, prompt, output,
-device, and step count can be overridden with environment variables. CUDA is
-checked by the generator automatically when `DEVICE` is `auto` or `cuda`;
-`auto` falls back to CPU if PyTorch cannot use the GPU.
+configuration from `slurm/job_kandinsky.sbatch`. Input image, mask, prompt,
+output, device, and step count can be overridden with environment variables.
+CUDA is checked by the generator automatically when `DEVICE` is `auto` or
+`cuda`; `auto` falls back to CPU if PyTorch cannot use the GPU.
 
 ```bash
 PROMPT="a black cat" \
@@ -155,12 +178,28 @@ INPUT_IMAGE="scripts/inputs/image.png" \
 MASK_IMAGE="scripts/inputs/mask.png" \
 OUTPUT_IMAGE="outputs/cat.png" \
 DEVICE=auto \
-bash slurm/job.sbatch
+bash slurm/job_kandinsky.sbatch
 ```
+
+### Run the FLUX.1 Fill job
+
+From the project root on Slurm, after accepting the model license and running
+`hf auth login` on that account:
+
+```bash
+sbatch slurm/job_flux.sbatch
+```
+
+The job reads `slurm/inputs/image.png` and `slurm/inputs/mask.png` by default,
+saves generated images under `slurm/outputs/images/`, and writes Slurm stdout
+and stderr logs beside the batch file. Override `INPUT_IMAGE`, `MASK_IMAGE`,
+`OUTPUT_IMAGE`, `PROMPT`, `DEVICE`, `STEPS`, or `GUIDANCE_SCALE` when submitting.
+It requests 64 GB of system memory and one GPU for CPU-offloaded FLUX inference;
+adjust the memory request if the cluster partition imposes a lower limit.
 
 You can also run it directly with Bash for local testing; Slurm directives are
 ignored in that case:
 
 ```bash
-bash slurm/job.sbatch
+bash slurm/job_flux.sbatch
 ```

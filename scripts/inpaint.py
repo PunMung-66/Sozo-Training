@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Command-line entry point for Kandinsky 2.2 and SDXL image inpainting."""
+"""Command-line entry point for Kandinsky 2.2, SDXL, and FLUX.1 Fill."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--model",
-        choices=("kandinsky", "sdxl"),
+        choices=("kandinsky", "sdxl", "flux-fill"),
         default="kandinsky",
         help="Inpainting model to use (default: kandinsky)",
     )
@@ -42,6 +42,13 @@ def main() -> None:
         steps = args.steps if args.steps is not None else 30
         guidance_scale = (
             args.guidance_scale if args.guidance_scale is not None else 7.5
+        )
+    elif args.model == "flux-fill":
+        from flux_inpainting import generate_inpainting
+
+        steps = args.steps if args.steps is not None else 50
+        guidance_scale = (
+            args.guidance_scale if args.guidance_scale is not None else 30.0
         )
     else:
         from kandinsky_inpainting import generate_inpainting

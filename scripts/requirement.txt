@@ -1,6 +1,6 @@
 --extra-index-url https://download.pytorch.org/whl/cu128
 
-diffusers>=0.30
+diffusers>=0.32.0
 transformers>=4.44
 accelerate>=0.33
 sentencepiece>=0.2.0
