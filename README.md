@@ -82,7 +82,7 @@ Use `ansible/slurm_mount.sh` to mount your Slurm home directory locally over SSH
 ./ansible/slurm_mount.sh unmount
 ```
 
-## 7. Generate an inpainted image with Kandinsky 2.2
+## 7. Generate an inpainted image with Kandinsky 2.2 or SDXL
 
 Use Python 3.10 or newer. From the project root, create and activate a virtual
 environment and install all generation dependencies. `scripts/requirement.txt`
@@ -107,8 +107,8 @@ The generator runs the same check automatically before each run that may use
 CUDA (`--device auto` or `--device cuda`). `nvidia-smi` seeing a GPU does not
 guarantee that PyTorch can use it. Put the source image and a same-sized mask at
 `scripts/inputs/image.png` and `scripts/inputs/mask.png`. White mask pixels are
-regenerated and black pixels are preserved; image dimensions must be multiples
-of 64.
+regenerated and black pixels are preserved. Kandinsky requires image dimensions
+to be multiples of 64; SDXL requires multiples of 8.
 
 Run the generator from the project root. It automatically uses CUDA when
 PyTorch reports a usable GPU, with CPU model offload enabled; otherwise it runs
@@ -116,6 +116,7 @@ on CPU. Use `--device cuda` to require CUDA or `--device cpu` to force CPU:
 
 ```bash
 python scripts/inpaint.py \
+  --model kandinsky \
   --image scripts/inputs/image.png \
   --mask scripts/inputs/mask.png \
   --prompt "a black cat with glowing eyes, highly detailed" \
@@ -124,10 +125,15 @@ python scripts/inpaint.py \
   --seed 1234
 ```
 
-For an initial online run, the two Kandinsky 2.2 checkpoints download from
-Hugging Face and are cached locally. After they are cached, they can be used
-offline by setting `HF_HUB_OFFLINE=1`. `slurm/job.sbatch` runs the same script
-with Kandinsky 2.2 using the configured Slurm resources.
+Use `--model sdxl` to select Stable Diffusion XL inpainting instead. Kandinsky
+remains the default if `--model` is omitted. By default Kandinsky uses 50 steps
+and a guidance scale of 4.0; SDXL uses 30 steps and 7.5. Override either value
+with `--steps` or `--guidance-scale`.
+
+On the first online run, the selected model's checkpoint(s) download from
+Hugging Face and are cached locally. Once cached, they can be used offline by
+setting `HF_HUB_OFFLINE=1`. `slurm/job.sbatch` runs the same script with
+Kandinsky 2.2 using the configured Slurm resources.
 
 ### Run the Kandinsky job
 

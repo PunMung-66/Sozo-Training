@@ -6,17 +6,17 @@
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --time=02:00:00
-#SBATCH --output=~/Sozo-Training/outputs/log/%x_%j.out
-#SBATCH --error=~/Sozo-Training/outputs/log/%x_%j.err
+#SBATCH --output=~/Sozo-Training/slurm/outputs/log/%x_%j.out
+#SBATCH --error=~/Sozo-Training/slurm/outputs/log/%x_%j.err
 
 set -Eeuo pipefail
 
 PROJECT_ROOT="$HOME/Sozo-Training"
 cd "$PROJECT_ROOT"
 
-INPUT_IMAGE="${INPUT_IMAGE:-scripts/inputs/image.png}"
-MASK_IMAGE="${MASK_IMAGE:-scripts/inputs/mask.png}"
-OUTPUT_IMAGE="${OUTPUT_IMAGE:-outputs/model/inpainted_${SLURM_JOB_ID:-$(date +%Y%m%d_%H%M%S)}.png}"
+INPUT_IMAGE="${INPUT_IMAGE:-slurm/inputs/image.png}"
+MASK_IMAGE="${MASK_IMAGE:-slurm/inputs/mask.png}"
+OUTPUT_IMAGE="${OUTPUT_IMAGE:-slurm/outputs/images/inpainted_${SLURM_JOB_ID:-$(date +%Y%m%d_%H%M%S)}.png}"
 PROMPT="${PROMPT:-a black cat with glowing eyes, highly detailed}"
 NEGATIVE_PROMPT="${NEGATIVE_PROMPT:-bad anatomy, deformed, ugly, blurry}"
 DEVICE="${DEVICE:-auto}"
@@ -32,7 +32,7 @@ fi
 mkdir -p "$(dirname "$OUTPUT_IMAGE")"
 
 python scripts/inpaint.py \
-    --model kandinsky \
+    --model sdxl \
     --image "$INPUT_IMAGE" \
     --mask "$MASK_IMAGE" \
     --prompt "$PROMPT" \
