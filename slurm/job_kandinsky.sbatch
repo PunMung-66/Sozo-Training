@@ -6,8 +6,8 @@
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --time=02:00:00
-#SBATCH --output=outputs-logs/%x_%j.out
-#SBATCH --error=outputs-logs/%x_%j.err
+#SBATCH --output=Sozo-Training/outputs-logs/%x_%j.out
+#SBATCH --error=Sozo-Training/outputs-logs/%x_%j.err
 
 set -Eeuo pipefail
 
