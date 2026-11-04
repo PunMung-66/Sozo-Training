@@ -9,8 +9,8 @@
 #SBATCH --mem=64G
 #SBATCH --gres=gpu:1
 #SBATCH --time=02:00:00
-#SBATCH --output=slurm/flux_fill_%j.out
-#SBATCH --error=slurm/flux_fill_%j.err
+#SBATCH --output=Sozo-Training/slurm/flux_fill_%j.out
+#SBATCH --error=Sozo-Training/slurm/flux_fill_%j.err
 
 set -Eeuo pipefail
 
@@ -19,7 +19,7 @@ cd "$PROJECT_ROOT"
 
 INPUT_IMAGE="${INPUT_IMAGE:-slurm/inputs/image.png}"
 MASK_IMAGE="${MASK_IMAGE:-slurm/inputs/mask.png}"
-OUTPUT_IMAGE="${OUTPUT_IMAGE:-slurm/outputs/images/flux_fill_${SLURM_JOB_ID:-$(date +%Y%m%d_%H%M%S)}.png}"
+OUTPUT_IMAGE="${OUTPUT_IMAGE:-outputs/images/flux_fill_${SLURM_JOB_ID:-$(date +%Y%m%d_%H%M%S)}.png}"
 PROMPT="${PROMPT:-a black cat with glowing eyes, highly detailed}"
 DEVICE="${DEVICE:-auto}"
 STEPS="${STEPS:-50}"
