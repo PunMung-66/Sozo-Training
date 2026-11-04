@@ -1,3 +1,19 @@
-/datasets/data/
 /ansible/.vault_pass
 /ansible/logs/
+
+# python cache
+__pycache__/
+*.pyc
+
+# datasets
+/datasets/data/
+/datasets/minimal/
+
+# generated outputs
+/outputs/
+
+# prompts inputs
+prompts.json
+
+# metrics results
+/results/

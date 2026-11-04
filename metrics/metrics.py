@@ -1,149 +1,146 @@
+"""Inpainting comparison metrics: SSIM / LPIPS (unmasked area), CLIP score (mask crop / full image).
 
+How to run (from Sozo-Training/):
+    pip install torch transformers lpips scikit-image numpy pillow
+    python metrics/metrics.py --root datasets --gen-root outputs --models sdxl kandinsky flux --prompts prompts.json
 
-# this code is just a AI generated template for metrics, it is not used in the current implementation
-# JJ will update and optimize it later, for now it is just a placeholder for future metrics implementation
-# list of metrics to implement:
-# - four input calling path and output path
-# - consider about running on GPU or CPU
-# - clean code and remove unnecessary imports
-# - do i need to separate the metrics into different files? or just keep them in one file?
-
-
-"""Comparison metrics for one (input, mask, output, prompt) case.
-
-- SSIM / LPIPS on the unmasked region only (background preservation; SSIM higher, LPIPS lower is better)
-- CLIP score of the prompt vs. the masked region's bounding-box crop (prompt-following)
-
-Usage: python metrics.py --input in.png --mask mask.png --output out.png --prompt "..." [--sanity]
---sanity also scores the paste-back composite (should give SSIM ~1 / LPIPS ~0), the SDXL VAE
-round-trip of the input (floor any non-paste-back model pays), and the original image's crop CLIP.
+Files:
+    datasets/<style>/<stem>.jpg + <stem>_mask.png   room + mask (white = inpaint area)
+    outputs/<model>/<style>/<stem>.png              generated image (same stem)
+    prompts.json  {"<style>/<stem>": "prompt"}       or {"<style>": "prompt"} for a whole folder
+    -> results/metrics.jsonl (per image), results/summary.csv (mean/std per model and model x style)
 """
-import os
+import argparse
+import csv
+import json
+from collections import defaultdict
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-os.environ.setdefault("HF_HOME", str(HERE / "hf_cache"))
-os.environ.setdefault("TORCH_HOME", str(HERE / "hf_cache" / "torch"))
-
-import argparse
-import json
-
+import lpips
 import numpy as np
 import torch
-from PIL import Image
+from PIL import Image, ImageOps
 from skimage.metrics import structural_similarity
+from transformers import CLIPModel, CLIPProcessor
 
+IMG_EXT = {".png", ".jpg", ".jpeg", ".webp"}
 CLIP_REPO = "openai/clip-vit-large-patch14"
-_lpips = None
-_clip = None
+METRICS = ["ssim_unmasked", "lpips_unmasked", "clip_crop", "clip_full"]
 
 
-def load_rgb(path, size=None):
-    im = Image.open(path).convert("RGB")
-    return im.resize((size, size)) if size and im.size != (size, size) else im
+def find_pairs(root):
+    """(style, image, mask) for every <style>/<stem>.* that has a <stem>_mask.* next to it."""
+    pairs = []
+    for d in sorted(p for p in Path(root).iterdir() if p.is_dir()):
+        for f in sorted(d.iterdir()):
+            if f.suffix.lower() in IMG_EXT and not f.stem.endswith("_mask"):
+                mask = next((m for m in d.iterdir() if m.stem == f.stem + "_mask"), None)
+                if mask:
+                    pairs.append((d.name, f, mask))
+    return pairs
 
 
-def load_mask(path, size):
-    m = Image.open(path).convert("L").resize((size, size), Image.NEAREST)
-    return np.asarray(m) > 127  # True = inpaint region
-
-
-def ssim_unmasked(ref, out, mask):
-    _, smap = structural_similarity(
-        np.asarray(ref), np.asarray(out), channel_axis=-1, data_range=255, full=True,
-    )
-    return float(smap.mean(axis=-1)[~mask].mean())
-
-
-def lpips_unmasked(ref, out, mask):
-    global _lpips
-    import lpips
-
-    if _lpips is None:
-        _lpips = lpips.LPIPS(net="alex", spatial=True, verbose=False).cuda().eval()
-
-    def t(im):
-        return torch.from_numpy(np.array(im)).permute(2, 0, 1)[None].float().cuda() / 127.5 - 1
-
-    with torch.no_grad():
-        dmap = _lpips(t(ref), t(out))[0, 0].cpu().numpy()
-    return float(dmap[~mask].mean())
-
-
-def clip_score(im, prompt):
-    """100 * max(cos, 0), the torchmetrics CLIPScore convention."""
-    global _clip
-    from transformers import CLIPModel, CLIPProcessor
-
-    if _clip is None:
-        _clip = (CLIPModel.from_pretrained(CLIP_REPO).cuda().eval(), CLIPProcessor.from_pretrained(CLIP_REPO))
-    model, proc = _clip
-    inputs = proc(text=[prompt], images=im, return_tensors="pt", padding=True, truncation=True, max_length=77).to("cuda")
-    with torch.no_grad():
-        o = model(**inputs)
-    cos = torch.nn.functional.cosine_similarity(o.image_embeds, o.text_embeds).item()
-    return 100 * max(cos, 0.0)
+def load_reference(img_path, mask_path, size):
+    """Original image + bool mask (True = inpaint) resized to the output size, like the generator saw them."""
+    img = ImageOps.exif_transpose(Image.open(img_path)).convert("RGB").resize(size, Image.LANCZOS)
+    mask = Image.open(mask_path).convert("L").resize(size, Image.NEAREST)
+    return img, np.asarray(mask) > 127
 
 
 def mask_crop(im, mask):
+    """Mask bounding box, padded to a square so CLIP's center crop keeps all of it."""
     ys, xs = np.nonzero(mask)
-    return im.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
+    crop = im.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
+    side = max(crop.size)
+    square = Image.new("RGB", (side, side))
+    square.paste(crop, ((side - crop.width) // 2, (side - crop.height) // 2))
+    return square
 
 
-def score(ref, out, mask, prompt):
-    return {
-        "ssim_unmasked": round(ssim_unmasked(ref, out, mask), 4),
-        "lpips_unmasked": round(lpips_unmasked(ref, out, mask), 4),
-        "clip_crop": round(clip_score(mask_crop(out, mask), prompt), 2),
-        "clip_full": round(clip_score(out, prompt), 2),
-    }
+class Scorer:
+    def __init__(self, device):
+        self.device = device
+        self.lpips = lpips.LPIPS(net="alex", spatial=True, verbose=False).to(device).eval()
+        self.clip = CLIPModel.from_pretrained(CLIP_REPO).to(device).eval()
+        self.proc = CLIPProcessor.from_pretrained(CLIP_REPO)
+
+    @torch.no_grad()
+    def clip_score(self, im, prompt):
+        x = self.proc(text=[prompt], images=im, return_tensors="pt", padding=True, truncation=True).to(self.device)
+        o = self.clip(**x)
+        return 100 * max(torch.cosine_similarity(o.image_embeds, o.text_embeds).item(), 0.0)
+
+    @torch.no_grad()
+    def score(self, img_path, mask_path, out_path, prompt):
+        out = Image.open(out_path).convert("RGB")
+        ref, mask = load_reference(img_path, mask_path, out.size)
+        keep = ~mask
+        # Put the original back inside the mask so the new furniture can't leak into the background score.
+        bg = np.where(mask[..., None], np.asarray(ref), np.asarray(out))
+
+        _, smap = structural_similarity(np.asarray(ref), bg, channel_axis=-1, data_range=255, full=True)
+        to_t = lambda a: torch.from_numpy(np.array(a)).permute(2, 0, 1)[None].float().to(self.device) / 127.5 - 1
+        dmap = self.lpips(to_t(ref), to_t(bg))[0, 0].cpu().numpy()
+
+        return {
+            "prompt": prompt,
+            "mask_frac": round(float(mask.mean()), 4),
+            "ssim_unmasked": round(float(smap.mean(-1)[keep].mean()), 4),
+            "lpips_unmasked": round(float(dmap[keep].mean()), 4),
+            "clip_crop": round(self.clip_score(mask_crop(out, mask), prompt), 2),
+            "clip_full": round(self.clip_score(out, prompt), 2),
+        }
 
 
-def vae_roundtrip(im, repo="diffusers/stable-diffusion-xl-1.0-inpainting-0.1"):
-    from diffusers import AutoencoderKL
-
-    # SDXL's VAE overflows in fp16, so run it in fp32 with tiling to fit 8 GB.
-    vae = AutoencoderKL.from_pretrained(repo, subfolder="vae", torch_dtype=torch.float32).cuda()
-    vae.enable_tiling()
-    x = torch.from_numpy(np.array(im)).permute(2, 0, 1)[None].float().cuda() / 127.5 - 1
-    with torch.no_grad():
-        y = vae.decode(vae.encode(x).latent_dist.mode()).sample
-    y = ((y[0].clamp(-1, 1) + 1) * 127.5).round().byte().permute(1, 2, 0).cpu().numpy()
-    del vae
-    torch.cuda.empty_cache()
-    return Image.fromarray(y)
+def write_summary(rows, path):
+    groups = defaultdict(list)
+    for r in rows:
+        groups[(r["model"], "ALL")].append(r)
+        groups[(r["model"], r["style"])].append(r)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["model", "style", "n"] + [f"{m}_{s}" for m in METRICS for s in ("mean", "std")])
+        for (model, style), rs in sorted(groups.items()):
+            stats = []
+            for m in METRICS:
+                v = np.array([r[m] for r in rs])
+                stats += [round(v.mean(), 4), round(v.std(), 4)]
+            w.writerow([model, style, len(rs)] + stats)
+            if style == "ALL":
+                print(f"{model:<10} n={len(rs):<3} " + "  ".join(f"{m}={stats[2 * i]}" for i, m in enumerate(METRICS)))
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--input", required=True, type=Path)
-    ap.add_argument("--mask", required=True, type=Path)
-    ap.add_argument("--output", required=True, type=Path)
-    ap.add_argument("--prompt", required=True)
-    ap.add_argument("--sanity", action="store_true")
-    ap.add_argument("--log", type=Path, help="append the record to this jsonl file")
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--root", type=Path, default=Path("datasets"))
+    ap.add_argument("--gen-root", type=Path, default=Path("outputs"))
+    ap.add_argument("--models", nargs="+", default=["sdxl", "kandinsky", "flux"])
+    ap.add_argument("--prompts", type=Path, required=True)
+    ap.add_argument("--results", type=Path, default=Path("results"))
+    ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     args = ap.parse_args()
 
-    out = load_rgb(args.output)
-    size = out.size[0]
-    ref = load_rgb(args.input, size)
-    mask = load_mask(args.mask, size)
+    prompts = json.loads(args.prompts.read_text(encoding="utf-8"))
+    scorer = Scorer(args.device)
+    args.results.mkdir(parents=True, exist_ok=True)
 
-    record = {"output": args.output.name, "prompt": args.prompt, "size": size,
-              "mask_frac": round(float(mask.mean()), 4), **score(ref, out, mask, args.prompt)}
+    rows = []
+    for model in args.models:
+        for style, img, mask in find_pairs(args.root):
+            out = args.gen_root / model / style / f"{img.stem}.png"
+            if not out.exists():
+                print(f"MISSING {out}")
+                continue
+            prompt = prompts.get(f"{style}/{img.stem}", prompts.get(style, style))
+            row = {"model": model, "style": style, "stem": img.stem, **scorer.score(img, mask, out, prompt)}
+            rows.append(row)
+            print(f"{model}/{style}/{img.stem}: " + "  ".join(f"{m}={row[m]}" for m in METRICS))
 
-    if args.sanity:
-        m3 = mask[..., None]
-        composite = Image.fromarray(np.where(m3, np.asarray(out), np.asarray(ref)))
-        record["sanity_composite"] = score(ref, composite, mask, args.prompt)
-        record["sanity_vae_floor"] = {k: v for k, v in score(ref, vae_roundtrip(ref), mask, args.prompt).items()
-                                      if k.endswith("unmasked")}
-        record["sanity_original_clip_crop"] = round(clip_score(mask_crop(ref, mask), args.prompt), 2)
-
-    print(json.dumps(record, indent=2))
-    if args.log:
-        with open(args.log, "a") as f:
-            f.write(json.dumps(record) + "\n")
+    with open(args.results / "metrics.jsonl", "w", encoding="utf-8") as f:
+        f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
+    if rows:
+        print()
+        write_summary(rows, args.results / "summary.csv")
 
 
 if __name__ == "__main__":
