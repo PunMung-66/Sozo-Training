@@ -56,5 +56,5 @@
 
     - name: Display job execution output
       ansible.builtin.debug:
-        msg: "{{ 'Submitted to Slurm and waited for completion' if slurm_directive_check.rc == 0 else 'Ran with bash' }}: {{ job_execution.stdout }}"
+        msg: "{{ 'Submitted to Slurm (not waiting for completion)' if slurm_directive_check.rc == 0 else 'Ran with bash to completion' }}: {{ job_execution.stdout }}"
       when: not (list_job_files | default(false) | bool)
