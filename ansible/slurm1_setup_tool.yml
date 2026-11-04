@@ -159,6 +159,8 @@
           - "{{ project_path }}/{{ repo_name }}/venv/bin/python"
           - --requirements
           - "{{ project_path }}/{{ repo_name }}/scripts/requirement.txt"
+      register: requirements_install
+      changed_when: "'Installed' in requirements_install.stdout or 'Uninstalled' in requirements_install.stdout"
 
     - name: Add Google Client ID and Secret to DVC config
       ansible.builtin.command:
