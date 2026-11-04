@@ -44,14 +44,16 @@ ansible-playbook slurm2_fetch_code.yml
 ansible-playbook slurm3_fetch_dataset.yml
 ```
 
-Add `--limit HOST` to a command to target one server. The setup playbook
-installs Git, `uv`, and DVC and clones the project. The fetch-code playbook
+Add `--limit HOST` to a command to target one Slurm account. The setup playbook
+installs Git, `uv`, and DVC, clones the project, creates its virtual environment,
+and installs packages from `scripts/requirement.txt`. The fetch-code playbook
 updates the remote checkout from `main` and can overwrite changes made there.
-The dataset playbook runs `dvc pull`. Image generation is run directly on a
-regular Linux server with the Bash launcher described below; it does not require
-Slurm.
+The dataset playbook runs `dvc pull`; the final playbook runs `slurm/job.sbatch`
+with `sbatch` if it contains `#SBATCH` directives, or with `bash` otherwise.
+Job output is written under `~/result/running` on Slurm. Image generation can
+also be run directly on a regular Linux server with the Bash launchers below.
 
-When using `ansible/sozo_ctl.py`, selecting setup or fetch-code lists the remote repository branches and lets you choose which branch to clone or update. Direct playbook runs continue to use `repo_branch` from `ansible/inventory.yml` (default: `main`).
+When using `ansible/sozo_ctl.py`, selecting setup or fetch-code lists the remote repository branches and lets you choose which branch to clone or update. Selecting submit scans `slurm/` for `.sbatch` files and shell scripts. Scripts with `#SBATCH` directives run through `sbatch`; other shell scripts run through `bash`. Direct playbook runs continue to use `repo_branch` from `ansible/inventory.yml` (default: `main`) and check `slurm/job.sbatch` unless `job_file` is provided.
 
 ## 5. Track and transfer data with DVC
 
@@ -74,13 +76,25 @@ The `.dvc` file is committed to Git; the dataset files are stored in the configu
 
 ## 6. Mount the Slurm filesystem locally
 
-Use `ansible/slurm_mount.sh` to mount your Slurm home directory locally over SSHFS. Install SSHFS first (`sudo apt install sshfs` on Ubuntu/Debian), then update the Slurm user, host, and local mount path near the top of the script. Run it from the project root:
+Use `ansible/slurm_mount.sh` to mount a Slurm directory locally over SSHFS. Install SSHFS first (`sudo apt install sshfs` on Ubuntu/Debian), then run it from the project root:
 
 ```bash
 ./ansible/slurm_mount.sh mount
 ./ansible/slurm_mount.sh status
 ./ansible/slurm_mount.sh unmount
 ```
+
+When `mount` runs in a terminal, it prompts for the Slurm SSH user, Slurm
+host, remote path, and local mount path. Press Enter at a prompt to keep its
+displayed default. The current defaults are user
+`66070503445@cpe.kmutt.ac.th`, host `portal.slurm.cpe.kmutt.ac.th`, the
+remote user's home directory (blank remote path), and `${HOME}/BenSlurm`
+locally. The remote path is the directory on Slurm; the local mount path is
+where that remote directory appears on your computer. The script creates the
+local directory if needed. `status` and `unmount` prompt for the local mount
+path so you can target the same mount. For non-interactive runs, set
+`SLURM_USER`, `SLURM_HOST`, `REMOTE_PATH`, and `MOUNT_PATH` in the environment;
+the SSH key can also be overridden with `SSH_KEY`.
 
 ## 7. Generate an inpainted image with Kandinsky 2.2, SDXL, or FLUX.1 Fill
 
