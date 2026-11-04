@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Submit from the project root with: sbatch slurm/job_flux.sbatch
 # Accept the FLUX.1 Fill model license and run `hf auth login` on Slurm first.
-# The 64G RAM request supports loading this large model with CPU offload.
+# The 50G RAM request supports loading this large model with CPU offload.
 #SBATCH --job-name=flux-fill
 #SBATCH --partition=gpu4090
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=64G
+#SBATCH --mem=58G
 #SBATCH --gres=gpu:1
 #SBATCH --time=02:00:00
 #SBATCH --output=Sozo-Training/slurm/flux_fill_%j.out
