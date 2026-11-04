@@ -118,6 +118,25 @@
         update: true
         force: true
 
+    - name: Create private directory for notification secrets
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.secrets"
+        state: directory
+        mode: "0700"
+      when:
+        - discord_webhook is defined
+        - discord_webhook | string | length > 0
+
+    - name: Install Discord webhook for job notifications
+      ansible.builtin.copy:
+        content: "{{ discord_webhook }}\n"
+        dest: "{{ ansible_env.HOME }}/.secrets/discord_webhook"
+        mode: "0600"
+      no_log: true
+      when:
+        - discord_webhook is defined
+        - discord_webhook | string | length > 0
+
     - name: Create venv by uv
       ansible.builtin.command:
         argv:

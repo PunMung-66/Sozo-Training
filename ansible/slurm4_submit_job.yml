@@ -30,19 +30,31 @@
       failed_when: slurm_directive_check.rc not in [0, 1]
       when: not (list_job_files | default(false) | bool)
 
-    - name: Run selected script
+    # - name: Run selected script
+    #   ansible.builtin.command:
+    #     argv: >-
+    #       {{
+    #         ['sbatch', job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch')]
+    #         if slurm_directive_check.rc == 0
+    #         else ['bash', job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch')]
+    #       }}
+    #   register: job_execution
+    #   changed_when: false
+    #   when: not (list_job_files | default(false) | bool)
+
+    - name: Run selected script with notifications
       ansible.builtin.command:
-        argv: >-
-          {{
-            ['sbatch', job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch')]
-            if slurm_directive_check.rc == 0
-            else ['bash', job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch')]
-          }}
+        argv:
+          - bash
+          - "{{ project_path }}/{{ repo_name }}/ansible/hooks/run_with_notify.sh"
+          - "{{ job_file | default(project_path ~ '/' ~ repo_name ~ '/slurm/job.sbatch') }}"
+      args:
+        chdir: "{{ project_path }}/{{ repo_name }}"
       register: job_execution
-      changed_when: false
+      changed_when: true
       when: not (list_job_files | default(false) | bool)
 
     - name: Display job execution output
       ansible.builtin.debug:
-        msg: "{{ 'Submitted to Slurm' if slurm_directive_check.rc == 0 else 'Ran with bash' }}: {{ job_execution.stdout }}"
+        msg: "{{ 'Submitted to Slurm and waited for completion' if slurm_directive_check.rc == 0 else 'Ran with bash' }}: {{ job_execution.stdout }}"
       when: not (list_job_files | default(false) | bool)

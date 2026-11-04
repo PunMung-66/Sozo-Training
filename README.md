@@ -21,7 +21,7 @@ ansible --version
 chmod 600 ansible/.vault_pass
 ```
 
-Keep this password file private; it is ignored by Git. To encrypt another value, run `cd ansible && ansible-vault encrypt_string --name 'variable_name' --prompt` and put the output in the inventory. Do not put SSH private keys in Vault.
+Keep this password file private; it is ignored by Git. To encrypt another value, run `cd ansible && ansible-vault encrypt_string --name 'variable_name' --prompt` and put the output in the inventory. The setup playbook writes the encrypted `discord_webhook` inventory variable to `~/.secrets/discord_webhook` on the remote account with private permissions; the notification hooks read the URL from that file. Do not put SSH private keys in Vault.
 
 ## 3. Configure targets and projects
 
@@ -53,7 +53,7 @@ with `sbatch` if it contains `#SBATCH` directives, or with `bash` otherwise.
 Job output is written under `~/result/running` on Slurm. Image generation can
 also be run directly on a regular Linux server with the Bash launchers below.
 
-When using `ansible/sozo_ctl.py`, selecting setup or fetch-code lists the remote repository branches and lets you choose which branch to clone or update. Selecting submit scans `slurm/` for `.sbatch` files and shell scripts. Scripts with `#SBATCH` directives run through `sbatch`; other shell scripts run through `bash`. Direct playbook runs continue to use `repo_branch` from `ansible/inventory.yml` (default: `main`) and check `slurm/job.sbatch` unless `job_file` is provided.
+When using `ansible/sozo_ctl.py`, selecting setup or fetch-code lists the remote repository branches and lets you choose which branch to clone or update. Selecting submit scans `slurm/` for `.sbatch` files and shell scripts. Scripts with `#SBATCH` directives run through `sbatch`; other shell scripts run through `bash`. The submit playbook uses `ansible/hooks/run_with_notify.sh` for either kind of script and waits for completion. To enable its Discord end/failure notifications, put the webhook URL in `~/.secrets/discord_webhook` on the remote account and ensure `curl` is installed; hooks are optional and do not fail the job. Direct playbook runs continue to use `repo_branch` from `ansible/inventory.yml` (default: `main`) and check `slurm/job.sbatch` unless `job_file` is provided.
 
 ## 5. Track and transfer data with DVC
 
