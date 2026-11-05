@@ -7,4 +7,4 @@ if [[ "$JOB_STATE" != "COMPLETED" ]]; then
 fi
 
 send_embed "⏹️ Job ended: $JOB_STATE" "$JOB_COLOR" \
-    "$(job_box "Time: $(date '+%F %T')" "Time used: $JOB_ELAPSED" "Exit code: $JOB_EXITCODE")"
+    "$(job_summary "TIME: $(date '+%F %T')" "TIME USED: $JOB_ELAPSED" "EXIT CODE: $JOB_EXITCODE")"

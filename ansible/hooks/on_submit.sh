@@ -7,4 +7,4 @@ else
     JOB_TITLE="Server job started"
 fi
 
-send_embed "🚀 $JOB_TITLE" "3498DB" "$(job_box)"
+send_embed "🚀 $JOB_TITLE" "3498DB" "$(job_summary)"

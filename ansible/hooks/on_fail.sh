@@ -7,4 +7,4 @@ if [[ -n "$JOB_ID" ]]; then
 fi
 
 send_embed "🚨 $JOB_REFERENCE needs attention: $JOB_STATE" "E74C3C" \
-    "$(job_box "Exit code: $JOB_EXITCODE")"
+    "$(job_summary "EXIT CODE: $JOB_EXITCODE")"

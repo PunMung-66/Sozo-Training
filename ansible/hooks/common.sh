@@ -1,24 +1,22 @@
 WEBHOOK_FILE="$HOME/.secrets/discord_webhook"
 
-job_box() {
+job_summary() {
     printf '```text\n'
-    printf '┌──────────────────────────────────────────────────┐\n'
-    printf '│ Tracking ID: %s │\n' "${JOB_TRACKING_ID:-unknown}"
+    printf 'TRACKING ID: %s\n' "${JOB_TRACKING_ID:-unknown}"
     if [[ -n "${JOB_ID:-}" ]]; then
-        printf '│ Job ID: %s │\n' "$JOB_ID"
+        printf 'JOB ID: %s\n' "$JOB_ID"
     fi
-    printf '│ Job File: %s │\n' "${JOB_FILE:-unknown}"
-    printf '│ Job Working Directory: %s │\n' "${JOB_WORKDIR:-unknown}"
-    printf '│ State: %s │\n' "${JOB_STATE:-unknown}"
-    printf '│ Host: %s │\n' "${JOB_HOST:-unknown}"
+    printf 'JOB FILE: %s\n' "${JOB_FILE:-unknown}"
+    printf 'WORKING DIRECTORY: %s\n' "${JOB_WORKDIR:-unknown}"
+    printf 'STATE: %s\n' "${JOB_STATE:-unknown}"
+    printf 'HOST: %s\n' "${JOB_HOST:-unknown}"
     if [[ -n "${JOB_ID:-}" ]]; then
-        printf '│ Node: %s │\n' "${JOB_NODE:-unknown}"
-        printf '│ Partition: %s │\n' "${JOB_PARTITION:-unknown}"
+        printf 'NODE: %s\n' "${JOB_NODE:-unknown}"
+        printf 'PARTITION: %s\n' "${JOB_PARTITION:-unknown}"
     fi
     for detail in "$@"; do
-        printf '│ %s │\n' "$detail"
+        printf '%s\n' "$detail"
     done
-    printf '└──────────────────────────────────────────────────┘\n'
     printf '```'
 }
 
