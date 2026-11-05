@@ -6,8 +6,8 @@ job_summary() {
     if [[ -n "${JOB_ID:-}" ]]; then
         printf 'JOB ID: %s\n' "$JOB_ID"
     fi
-    printf 'JOB FILE: %s\n' "${JOB_FILE:-unknown}"
-    printf 'WORKING DIRECTORY: %s\n' "${JOB_WORKDIR:-unknown}"
+    printf '\nJOB FILE: %s\n\n' "${JOB_FILE:-unknown}"
+    printf 'WORKING DIRECTORY: %s\n\n' "${JOB_WORKDIR:-unknown}"
     printf 'STATE: %s\n' "${JOB_STATE:-unknown}"
     printf 'HOST: %s\n' "${JOB_HOST:-unknown}"
     if [[ -n "${JOB_ID:-}" ]]; then

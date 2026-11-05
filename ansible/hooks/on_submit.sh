@@ -7,4 +7,7 @@ else
     JOB_TITLE="Server job started"
 fi
 
-send_embed "🚀 $JOB_TITLE" "3498DB" "$(job_summary)"
+JOB_MESSAGE="ตอนนี้มาร์คส่งงานให้ทุกคนแล้วนะครับ เดียวมาร์คดูเองครับ 🚀"
+JOB_DESCRIPTION=$'\n'"$JOB_MESSAGE"$'\n\n'"$(job_summary)"
+
+send_embed "🚀 $JOB_TITLE" "3498DB" "$JOB_DESCRIPTION"
