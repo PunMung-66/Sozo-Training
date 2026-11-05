@@ -13,6 +13,8 @@ HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 export JOB_FILE
 export JOB_HOST="$(hostname)"
 export JOB_WORKDIR="$(pwd)"
+JOB_TRACKING_ID="$(printf '%s' "$(date -u +%s%N)-$$" | sha256sum | cut -c1-16)"
+export JOB_TRACKING_ID
 export JOB_ID="" JOB_NODE="" JOB_PARTITION="" JOB_STATE="" JOB_ELAPSED="" JOB_EXITCODE=""
 
 # Run hooks through Bash so executable bits are not required.
@@ -34,7 +36,8 @@ if grep -Eq '^[[:space:]]*#SBATCH([[:space:]]|$)' "$JOB_FILE"; then
             /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
             { exit }
         ' "$JOB_FILE"
-        printf 'JOB_FILE=%q\nHOOK_DIR=%q\n' "$JOB_FILE" "$HOOK_DIR"
+        printf 'JOB_FILE=%q\nHOOK_DIR=%q\nexport JOB_TRACKING_ID=%q\n' \
+            "$JOB_FILE" "$HOOK_DIR" "$JOB_TRACKING_ID"
         cat <<'SBATCH_BODY'
 export JOB_ID="${SLURM_JOB_ID:-unknown}"
 export JOB_HOST="$(hostname)"
@@ -87,6 +90,7 @@ else
     # plain bash script
     SECONDS=0
     export JOB_STATE="RUNNING"
+    hook on_submit.sh
     bash "$JOB_FILE"; RC=$?
     export JOB_EXITCODE="$RC:0" JOB_ELAPSED="$((SECONDS/60)) min $((SECONDS%60)) s"
     export JOB_STATE="COMPLETED"; [[ $RC -ne 0 ]] && export JOB_STATE="FAILED"

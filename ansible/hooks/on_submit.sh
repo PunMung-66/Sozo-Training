@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 source "$(dirname "$0")/common.sh"
 
-send "🚀 **Slurm job submitted**
-Job ID: $JOB_ID
-Script: $JOB_FILE
-Host: $JOB_HOST
-Working directory: $JOB_WORKDIR
-State: $JOB_STATE"
+if [[ -n "$JOB_ID" ]]; then
+    JOB_TITLE="Slurm job submitted"
+else
+    JOB_TITLE="Server job started"
+fi
+
+send_embed "🚀 $JOB_TITLE" "3498DB" "$(job_box)"

@@ -1,17 +1,10 @@
 #!/usr/bin/env bash
 source "$(dirname "$0")/common.sh"
 
-JOB_DETAILS="Host: $JOB_HOST
-Working directory: $JOB_WORKDIR"
-if [[ -n "$JOB_ID" ]]; then
-    JOB_DETAILS="Slurm job ID: $JOB_ID
-$JOB_DETAILS
-Node: ${JOB_NODE:-unknown}
-Partition: ${JOB_PARTITION:-unknown}"
+JOB_COLOR="2ECC71"
+if [[ "$JOB_STATE" != "COMPLETED" ]]; then
+    JOB_COLOR="E74C3C"
 fi
 
-send "⏹️ **Job ended: $JOB_STATE**
-Time: $(date '+%F %T')
-$JOB_DETAILS
-Time used: $JOB_ELAPSED
-Exit code: $JOB_EXITCODE"
+send_embed "⏹️ Job ended: $JOB_STATE" "$JOB_COLOR" \
+    "$(job_box "Time: $(date '+%F %T')" "Time used: $JOB_ELAPSED" "Exit code: $JOB_EXITCODE")"
