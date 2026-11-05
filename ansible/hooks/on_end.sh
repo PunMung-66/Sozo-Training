@@ -10,4 +10,4 @@ JOB_MESSAGE="มาร์คขอแจ้งให้ทราบครับ 
 
 send_embed "⏹️ Job ended: $JOB_STATE" "$JOB_COLOR" \
     "$JOB_MESSAGE
-$(job_summary "TIME: $(date '+%F %T')" "TIME USED: $JOB_ELAPSED" "EXIT CODE: $JOB_EXITCODE")"
+$(job_summary "TIME: $(date '+%F %T')" "TIME USED: $JOB_ELAPSED" "EXIT CODE: $JOB_EXITCODE")" "everyone"

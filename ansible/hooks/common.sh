@@ -29,6 +29,7 @@ send_embed() {
     local title="$1"
     local color="$2"
     local description="$3"
+    local mention="${4:-}"
     local payload
 
     [[ -f "$WEBHOOK_FILE" ]] || return 0
@@ -36,14 +37,18 @@ send_embed() {
 import json
 import sys
 
-print(json.dumps({
+payload = {
     "embeds": [{
         "title": sys.argv[1],
         "description": sys.argv[3],
         "color": int(sys.argv[2], 16),
     }]
-}))
-' "$title" "$color" "$description")" || {
+}
+if sys.argv[4] == "everyone":
+    payload["content"] = "@everyone"
+    payload["allowed_mentions"] = {"parse": ["everyone"]}
+print(json.dumps(payload))
+' "$title" "$color" "$description" "$mention")" || {
         echo "Failed to encode Discord notification payload" >&2
         return 1
     }
