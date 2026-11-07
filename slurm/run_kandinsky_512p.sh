@@ -31,5 +31,6 @@ while IFS=$'\t' read -r ID LEVEL IMAGE MASK PROMPT; do
     echo "Submitting $MODEL job $ID ($LEVEL) -> $OUTPUT_IMAGE"
 
     INPUT_IMAGE="$IMAGE" MASK_IMAGE="$MASK" OUTPUT_IMAGE="$OUTPUT_IMAGE" PROMPT="$PROMPT" \
-        sbatch --chdir="$HOME" --job-name="${MODEL}-$ID" --export=ALL "$SBATCH_FILE"
+        bash ansible/hooks/run_with_notify.sh "$SBATCH_FILE" \
+            --chdir="$HOME" --job-name="${MODEL}-$ID" --export=ALL
 done <<< "$ENTRIES"

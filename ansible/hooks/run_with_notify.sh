@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-# Usage: run_with_notify.sh <job_file>
+# Usage: run_with_notify.sh <job_file> [sbatch options...]
 set -uo pipefail
 
-if [[ $# -ne 1 || ! -f "$1" ]]; then
-    echo "Usage: $0 <existing job_file>" >&2
+if [[ $# -lt 1 || ! -f "$1" ]]; then
+    echo "Usage: $0 <existing job_file> [sbatch options...]" >&2
     exit 2
 fi
 
-JOB_FILE="$(realpath "$1")"
+JOB_FILE_ARG="$1"
+shift
+JOB_FILE="$(realpath "$JOB_FILE_ARG")"
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 export JOB_FILE
@@ -72,7 +74,7 @@ SBATCH_BODY
     } > "$SBATCH_WRAPPER"
     chmod 600 "$SBATCH_WRAPPER"
 
-    if ! SUBMIT_OUTPUT="$(sbatch --parsable "$SBATCH_WRAPPER")"; then
+    if ! SUBMIT_OUTPUT="$(sbatch --parsable "$@" "$SBATCH_WRAPPER")"; then
         JOB_STATE="SUBMIT_FAILED"
         hook on_fail.sh
         rm -f "$SBATCH_WRAPPER"
