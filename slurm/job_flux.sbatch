@@ -9,8 +9,8 @@
 #SBATCH --mem=58G
 #SBATCH --gres=gpu:1
 #SBATCH --time=02:00:00
-#SBATCH --output=Sozo-Training/outputs/flux_fill_%j.out
-#SBATCH --error=Sozo-Training/outputs/flux_fill_%j.err
+#SBATCH --output=Sozo-Training/outputs/logs/flux_fill_%j.out
+#SBATCH --error=Sozo-Training/outputs/logs/flux_fill_%j.err
 
 set -Eeuo pipefail
 
