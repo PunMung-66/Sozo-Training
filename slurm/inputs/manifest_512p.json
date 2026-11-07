@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "level": "L1",
+    "prompt": "A Japandi-style bed with an off-white wooden frame and simple bedding.",
+    "image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png"
+  },
+  {
+    "id": 2,
+    "level": "L2",
+    "prompt": "A Japandi-style bed featuring a natural wooden frame in an off-white finish, with a low platform height, a simple fluted headboard, and neutral bedding. The design is minimalist and calm, with clean lines and a warm, natural appearance.",
+    "image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png"
+  },
+  {
+    "id": 3,
+    "level": "L2",
+    "prompt": "A Japandi-style bed featuring a natural wooden frame in a black finish, with a low platform height, a simple fluted headboard, and neutral bedding. The design is minimalist and calm, with clean lines and a warm, natural appearance.",
+    "image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png"
+  },
+  {
+    "id": 4,
+    "level": "L1",
+    "prompt": "A Japandi-style bed with a brown wooden frame and simple bedding.",
+    "image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png"
+  },
+  {
+    "id": 5,
+    "level": "L2",
+    "prompt": "An industrial-style sofa upholstered in off-white cloth fabric, with a sturdy dark metal frame and slim legs. The design is simple and robust, with clean straight lines and a raw, utilitarian look.",
+    "image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png"
+  },
+  {
+    "id": 6,
+    "level": "L1",
+    "prompt": "An industrial-style sofa upholstered in black cloth fabric with slim metal legs.",
+    "image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png"
+  },
+  {
+    "id": 7,
+    "level": "L2",
+    "prompt": "An industrial-style sofa upholstered in brown cloth fabric, with a sturdy dark metal frame and slim legs. The design is simple and robust, with clean straight lines and a raw, utilitarian look.",
+    "image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png"
+  },
+  {
+    "id": 8,
+    "level": "L1",
+    "prompt": "A glam-style dining table with an off-white metal frame and elegant curved legs.",
+    "image": "slurm/inputs/image/512p/TestTable.5k_003.jpg",
+    "mask": "slurm/inputs/mask/512p/TestTable.5k_003_mask.png"
+  },
+  {
+    "id": 9,
+    "level": "L2",
+    "prompt": "A glam-style dining table with a black metal frame and polished finish, featuring elegant curved legs. The design is refined and symmetrical, with a reflective surface that feels luxurious and sophisticated.",
+    "image": "slurm/inputs/image/512p/TestTable.5k_003.jpg",
+    "mask": "slurm/inputs/mask/512p/TestTable.5k_003_mask.png"
+  }
+]
