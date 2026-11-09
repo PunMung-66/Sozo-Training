@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from PIL import Image
 
 INPAINT_MODEL_ID = "diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
+MIN_FREE_VRAM_BYTES = 12 * 1024**3
 
 
 def generate_inpainting(
@@ -50,8 +51,20 @@ def generate_inpainting(
     use_cuda = cuda_available and device != "cpu"
     device = "cuda" if use_cuda else "cpu"
     dtype = torch.float16 if use_cuda else torch.float32
+    use_model_cpu_offload = False
     if use_cuda:
-        print("Using CUDA with CPU model offload.")
+        free_vram, _ = torch.cuda.mem_get_info()
+        use_model_cpu_offload = free_vram < MIN_FREE_VRAM_BYTES
+        if use_model_cpu_offload:
+            print(
+                f"Only {free_vram / 1024**3:.1f} GiB of VRAM is free; "
+                "using CUDA with CPU model offload."
+            )
+        else:
+            print(
+                f"Using CUDA without CPU model offload "
+                f"({free_vram / 1024**3:.1f} GiB VRAM free)."
+            )
     else:
         print("Using CPU; image generation will be very slow.")
     generator = torch.Generator(device=device)
@@ -64,7 +77,7 @@ def generate_inpainting(
         variant="fp16" if use_cuda else None,
         use_safetensors=True,
     )
-    if use_cuda:
+    if use_cuda and use_model_cpu_offload:
         pipeline.enable_model_cpu_offload()
     else:
         pipeline.to(device)
