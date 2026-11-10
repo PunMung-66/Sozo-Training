@@ -1,3 +1,21 @@
-/datasets/data/
+# ansible
 /ansible/.vault_pass
 /ansible/logs/
+
+# python
+__pycache__/
+*.pyc
+venv
+
+# datasets
+/datasets/data/
+
+# metrics results
+/metrics/results/
+
+# outputs
+/slurm/outputs/images/**
+!/slurm/outputs/images/note.txt
+
+/slurm/outputs/logs/**
+!/slurm/outputs/logs/note.txt

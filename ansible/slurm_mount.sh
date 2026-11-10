@@ -4,19 +4,44 @@
 
 set -euo pipefail
 
-# ---- Edit these ----------------------------------------------------------
-SLURM_USER="66070503445@cpe.kmutt.ac.th"
-SLURM_HOST="portal.slurm.cpe.kmutt.ac.th"
-REMOTE_PATH=""                           # empty = your home directory on the node
-MOUNT_PATH="${HOME}/Documents/Senior/Project/SlurmMount"  # local mount point
-SSH_KEY="${HOME}/.ssh/id_rsa"            # leave empty to use ssh-agent/config
+# Defaults can be overridden with environment variables. When run in a
+# terminal, mount prompts for the connection details and local mount point.
+SLURM_USER="${SLURM_USER:-66070503445@cpe.kmutt.ac.th}"
+SLURM_HOST="${SLURM_HOST:-portal.slurm.cpe.kmutt.ac.th}"
+REMOTE_PATH="${REMOTE_PATH:-}"                     # empty = remote home directory
+MOUNT_PATH="${MOUNT_PATH:-${HOME}/BenSlurm}"       # local directory where remote files appear
+SSH_KEY="${SSH_KEY:-${HOME}/.ssh/id_rsa}"          # empty = use ssh-agent/config
 # --------------------------------------------------------------------------
+
+prompt_mount_path() {
+  if [[ -t 0 ]]; then
+    local value
+    read -r -p "Local mount path [$MOUNT_PATH]: " value
+    MOUNT_PATH="${value:-$MOUNT_PATH}"
+  fi
+}
+
+prompt_connection_settings() {
+  if [[ -t 0 ]]; then
+    local value remote_default
+    read -r -p "Slurm SSH user [$SLURM_USER]: " value
+    SLURM_USER="${value:-$SLURM_USER}"
+    read -r -p "Slurm host [$SLURM_HOST]: " value
+    SLURM_HOST="${value:-$SLURM_HOST}"
+    remote_default="${REMOTE_PATH:-remote home directory}"
+    read -r -p "Remote path [$remote_default]: " value
+    REMOTE_PATH="${value:-$REMOTE_PATH}"
+  fi
+}
 
 is_mounted() {
   mountpoint -q "$MOUNT_PATH" 2>/dev/null
 }
 
 do_mount() {
+  prompt_connection_settings
+  prompt_mount_path
+
   if ! command -v sshfs >/dev/null 2>&1; then
     echo "sshfs not found. Install it first: sudo apt install sshfs" >&2
     exit 1
@@ -39,6 +64,8 @@ do_mount() {
 }
 
 do_unmount() {
+  prompt_mount_path
+
   if ! is_mounted; then
     echo "Not mounted: $MOUNT_PATH"
     return 0
@@ -53,6 +80,8 @@ do_unmount() {
 }
 
 do_status() {
+  prompt_mount_path
+
   if is_mounted; then
     echo "MOUNTED: $MOUNT_PATH"
   else
