@@ -2,13 +2,16 @@
 
 How to run (from Sozo-Training/):
     pip install torch transformers lpips scikit-image numpy pillow
-    python metrics/metrics.py --root datasets --gen-root outputs --models sdxl kandinsky flux --prompts prompts.json
+    python metrics/metrics.py                                   # all slurm/inputs/manifest_*.json, all models
+    python metrics/metrics.py --manifests slurm/inputs/manifest_1024p.json --models flux
 
 Files:
-    datasets/<style>/<stem>.jpg + <stem>_mask.png   room + mask (white = inpaint area)
-    outputs/<model>/<style>/<stem>.png              generated image (same stem)
-    prompts.json  {"<style>/<stem>": "prompt"}       or {"<style>": "prompt"} for a whole folder
-    -> results/metrics.jsonl (per image), results/summary.csv (mean/std per model and model x style)
+    slurm/inputs/manifest_<res>.json   [{"id", "level", "prompt", "image", "mask"}, ...]
+                                       image/mask paths relative to --base (default: current dir); mask white = inpaint
+    outputs/images/<model>_<res>/<id>_<level>.png
+                                       generated image, written by slurm/run_<model>_<res>.sh
+                                       (change with --gen-root / --gen-pattern; placeholders {model} {res} {id} {level})
+    -> metrics/results/metrics.jsonl (per test case), metrics/results/summary.csv (mean/std per model x res, overall and per level)
 """
 import argparse
 import csv
@@ -23,21 +26,19 @@ from PIL import Image, ImageOps
 from skimage.metrics import structural_similarity
 from transformers import CLIPModel, CLIPProcessor
 
-IMG_EXT = {".png", ".jpg", ".jpeg", ".webp"}
 CLIP_REPO = "openai/clip-vit-large-patch14"
 METRICS = ["ssim_unmasked", "lpips_unmasked", "clip_crop", "clip_full"]
 
 
-def find_pairs(root):
-    """(style, image, mask) for every <style>/<stem>.* that has a <stem>_mask.* next to it."""
-    pairs = []
-    for d in sorted(p for p in Path(root).iterdir() if p.is_dir()):
-        for f in sorted(d.iterdir()):
-            if f.suffix.lower() in IMG_EXT and not f.stem.endswith("_mask"):
-                mask = next((m for m in d.iterdir() if m.stem == f.stem + "_mask"), None)
-                if mask:
-                    pairs.append((d.name, f, mask))
-    return pairs
+def load_manifest(path):
+    """(res, cases) from manifest_<res>.json; res comes from the file name (manifest_1024p.json -> 1024p)."""
+    res = path.stem.removeprefix("manifest").lstrip("_") or "default"
+    cases = json.loads(path.read_text(encoding="utf-8"))
+    for c in cases:
+        missing = {"id", "prompt", "image", "mask"} - c.keys()
+        if missing:
+            raise ValueError(f"{path}: entry {c.get('id')} is missing {sorted(missing)}")
+    return res, cases
 
 
 def load_reference(img_path, mask_path, size):
@@ -95,46 +96,56 @@ class Scorer:
 def write_summary(rows, path):
     groups = defaultdict(list)
     for r in rows:
-        groups[(r["model"], "ALL")].append(r)
-        groups[(r["model"], r["style"])].append(r)
+        groups[(r["model"], r["res"], "ALL")].append(r)
+        groups[(r["model"], r["res"], r["level"])].append(r)
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["model", "style", "n"] + [f"{m}_{s}" for m in METRICS for s in ("mean", "std")])
-        for (model, style), rs in sorted(groups.items()):
+        w.writerow(["model", "res", "level", "n"] + [f"{m}_{s}" for m in METRICS for s in ("mean", "std")])
+        for (model, res, level), rs in sorted(groups.items()):
             stats = []
             for m in METRICS:
                 v = np.array([r[m] for r in rs])
                 stats += [round(v.mean(), 4), round(v.std(), 4)]
-            w.writerow([model, style, len(rs)] + stats)
-            if style == "ALL":
-                print(f"{model:<10} n={len(rs):<3} " + "  ".join(f"{m}={stats[2 * i]}" for i, m in enumerate(METRICS)))
+            w.writerow([model, res, level, len(rs)] + stats)
+            if level == "ALL":
+                print(f"{model:<10} {res:<6} n={len(rs):<3} "
+                      + "  ".join(f"{m}={stats[2 * i]}" for i, m in enumerate(METRICS)))
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--root", type=Path, default=Path("datasets"))
-    ap.add_argument("--gen-root", type=Path, default=Path("outputs"))
+    ap.add_argument("--manifests", type=Path, nargs="+",
+                    default=sorted(Path("slurm/inputs").glob("manifest_*.json")))
+    ap.add_argument("--base", type=Path, default=Path("."), help="directory the manifest image/mask paths are relative to")
+    ap.add_argument("--gen-root", type=Path, default=Path("slurm/outputs/images"))
+    ap.add_argument("--gen-pattern", default="{model}_{res}/{id}_{level}.png",
+                    help="generated image path under --gen-root")
     ap.add_argument("--models", nargs="+", default=["sdxl", "kandinsky", "flux"])
-    ap.add_argument("--prompts", type=Path, required=True)
-    ap.add_argument("--results", type=Path, default=Path("results"))
+    ap.add_argument("--results", type=Path, default=Path("metrics/results"))
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     args = ap.parse_args()
 
-    prompts = json.loads(args.prompts.read_text(encoding="utf-8"))
+    if not args.manifests:
+        ap.error("no manifest found (looked for slurm/inputs/manifest_*.json); pass --manifests")
+    manifests = [load_manifest(p) for p in args.manifests]
     scorer = Scorer(args.device)
     args.results.mkdir(parents=True, exist_ok=True)
 
     rows = []
     for model in args.models:
-        for style, img, mask in find_pairs(args.root):
-            out = args.gen_root / model / style / f"{img.stem}.png"
-            if not out.exists():
-                print(f"MISSING {out}")
-                continue
-            prompt = prompts.get(f"{style}/{img.stem}", prompts.get(style, style))
-            row = {"model": model, "style": style, "stem": img.stem, **scorer.score(img, mask, out, prompt)}
-            rows.append(row)
-            print(f"{model}/{style}/{img.stem}: " + "  ".join(f"{m}={row[m]}" for m in METRICS))
+        for res, cases in manifests:
+            for c in cases:
+                level = c.get("level", "-")
+                out = args.gen_root / args.gen_pattern.format(model=model, res=res, id=c["id"], level=level)
+                img, mask = args.base / c["image"], args.base / c["mask"]
+                missing = [str(p) for p in (out, img, mask) if not p.exists()]
+                if missing:
+                    print(f"SKIP {model}/{res}/{c['id']}: missing {', '.join(missing)}")
+                    continue
+                row = {"model": model, "res": res, "id": c["id"], "level": level, "image": c["image"],
+                       **scorer.score(img, mask, out, c["prompt"])}
+                rows.append(row)
+                print(f"{model}/{res}/{c['id']} ({level}): " + "  ".join(f"{m}={row[m]}" for m in METRICS))
 
     with open(args.results / "metrics.jsonl", "w", encoding="utf-8") as f:
         f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)

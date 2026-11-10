@@ -9,10 +9,9 @@ venv
 
 # datasets
 /datasets/data/
-/datasets/minimal/
 
 # metrics results
-/results/
+/metrics/results/
 
 # outputs
 /slurm/outputs/images/**
