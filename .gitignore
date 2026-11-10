@@ -1,19 +1,22 @@
+# ansible
 /ansible/.vault_pass
 /ansible/logs/
 
-# python cache
+# python
 __pycache__/
 *.pyc
+venv
 
 # datasets
 /datasets/data/
 /datasets/minimal/
 
-# generated outputs
-/outputs/
-
-# prompts inputs
-prompts.json
-
 # metrics results
 /results/
+
+# outputs
+/slurm/outputs/images/**
+!/slurm/outputs/images/note.txt
+
+/slurm/outputs/logs/**
+!/slurm/outputs/logs/note.txt
