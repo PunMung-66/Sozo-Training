@@ -22,6 +22,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, required=True, help="Output image path")
     parser.add_argument("--steps", type=int, help="Number of inference steps")
     parser.add_argument("--guidance-scale", type=float, help="Prompt guidance scale")
+    parser.add_argument(
+        "--strength",
+        type=float,
+        help="SDXL only: how much of the masked area to regenerate, in (0, 1] (default: 0.99)",
+    )
     parser.add_argument("--seed", type=int, help="Optional seed for reproducible generation")
     parser.add_argument(
         "--device",
@@ -36,7 +41,12 @@ def main() -> None:
     args = parse_args()
     from PIL import Image
 
+    if args.strength is not None and args.model != "sdxl":
+        raise SystemExit("--strength is only supported with --model sdxl.")
+    extra_kwargs = {}
     if args.model == "sdxl":
+        if args.strength is not None:
+            extra_kwargs["strength"] = args.strength
         from sdxl_inpainting import generate_inpainting
 
         steps = args.steps if args.steps is not None else 30
@@ -72,6 +82,7 @@ def main() -> None:
         guidance_scale=guidance_scale,
         seed=args.seed,
         device=args.device,
+        **extra_kwargs,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     generated.save(args.output)

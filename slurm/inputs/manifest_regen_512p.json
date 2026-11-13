@@ -1,0 +1,269 @@
+[
+  {
+    "id": 1,
+    "level": "K512p_1_L1_s42",
+    "prompt": "A Japandi-style bed with an off-white painted wooden frame, a low platform and simple white bedding.",
+    "image": "slurm/inputs/regen_image/512p/K512p_1_L1.png",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png",
+    "seed": 42,
+    "start_image": "K512p_1_L1",
+    "source_model": "kandinsky",
+    "case": 1,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "fix_needed": "Off-white frame color; nightstand missing",
+    "must_stay": [
+      "Bed shape and position",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 2,
+    "level": "K512p_1_L1_s123",
+    "prompt": "A Japandi-style bed with an off-white painted wooden frame, a low platform and simple white bedding.",
+    "image": "slurm/inputs/regen_image/512p/K512p_1_L1.png",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png",
+    "seed": 123,
+    "start_image": "K512p_1_L1",
+    "source_model": "kandinsky",
+    "case": 1,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "fix_needed": "Off-white frame color; nightstand missing",
+    "must_stay": [
+      "Bed shape and position",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 3,
+    "level": "K512p_1_L1_s2024",
+    "prompt": "A Japandi-style bed with an off-white painted wooden frame, a low platform and simple white bedding.",
+    "image": "slurm/inputs/regen_image/512p/K512p_1_L1.png",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png",
+    "seed": 2024,
+    "start_image": "K512p_1_L1",
+    "source_model": "kandinsky",
+    "case": 1,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "fix_needed": "Off-white frame color; nightstand missing",
+    "must_stay": [
+      "Bed shape and position",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 4,
+    "level": "K512p_3_L2_s42",
+    "prompt": "A Japandi-style bed with a black wooden frame, a low platform and a low black headboard with vertical fluted grooves in a matte black finish, with neutral bedding. Minimalist and calm, with clean lines.",
+    "image": "slurm/inputs/regen_image/512p/K512p_3_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png",
+    "seed": 42,
+    "start_image": "K512p_3_L2",
+    "source_model": "kandinsky",
+    "case": 3,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "fix_needed": "Fluted headboard missing",
+    "must_stay": [
+      "Black low platform",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 5,
+    "level": "K512p_3_L2_s123",
+    "prompt": "A Japandi-style bed with a black wooden frame, a low platform and a low black headboard with vertical fluted grooves in a matte black finish, with neutral bedding. Minimalist and calm, with clean lines.",
+    "image": "slurm/inputs/regen_image/512p/K512p_3_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png",
+    "seed": 123,
+    "start_image": "K512p_3_L2",
+    "source_model": "kandinsky",
+    "case": 3,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "fix_needed": "Fluted headboard missing",
+    "must_stay": [
+      "Black low platform",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 6,
+    "level": "K512p_3_L2_s2024",
+    "prompt": "A Japandi-style bed with a black wooden frame, a low platform and a low black headboard with vertical fluted grooves in a matte black finish, with neutral bedding. Minimalist and calm, with clean lines.",
+    "image": "slurm/inputs/regen_image/512p/K512p_3_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestBed.5k_002_mask.png",
+    "seed": 2024,
+    "start_image": "K512p_3_L2",
+    "source_model": "kandinsky",
+    "case": 3,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/512p/TestBed.5k_002.jpg",
+    "fix_needed": "Fluted headboard missing",
+    "must_stay": [
+      "Black low platform",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 7,
+    "level": "K512p_5_L2_s42",
+    "prompt": "An industrial-style sofa upholstered in off-white cloth fabric, with a straight flat back, square arms and no tufting, on a dark metal frame with thin straight metal legs. Clean straight lines, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/512p/K512p_5_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 42,
+    "start_image": "K512p_5_L2",
+    "source_model": "kandinsky",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Industrial shape instead of the tufted glam back",
+    "must_stay": [
+      "Off-white color",
+      "Sofa position and size"
+    ]
+  },
+  {
+    "id": 8,
+    "level": "K512p_5_L2_s123",
+    "prompt": "An industrial-style sofa upholstered in off-white cloth fabric, with a straight flat back, square arms and no tufting, on a dark metal frame with thin straight metal legs. Clean straight lines, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/512p/K512p_5_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 123,
+    "start_image": "K512p_5_L2",
+    "source_model": "kandinsky",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Industrial shape instead of the tufted glam back",
+    "must_stay": [
+      "Off-white color",
+      "Sofa position and size"
+    ]
+  },
+  {
+    "id": 9,
+    "level": "K512p_5_L2_s2024",
+    "prompt": "An industrial-style sofa upholstered in off-white cloth fabric, with a straight flat back, square arms and no tufting, on a dark metal frame with thin straight metal legs. Clean straight lines, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/512p/K512p_5_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 2024,
+    "start_image": "K512p_5_L2",
+    "source_model": "kandinsky",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Industrial shape instead of the tufted glam back",
+    "must_stay": [
+      "Off-white color",
+      "Sofa position and size"
+    ]
+  },
+  {
+    "id": 10,
+    "level": "K512p_6_L1_s42",
+    "prompt": "An industrial-style sofa upholstered in black cloth fabric, with a straight flat back, square arms, no button tufting and slim black metal legs.",
+    "image": "slurm/inputs/regen_image/512p/K512p_6_L1.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 42,
+    "start_image": "K512p_6_L1",
+    "source_model": "kandinsky",
+    "case": 6,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Industrial shape instead of Chesterfield tufting",
+    "must_stay": [
+      "Black color",
+      "Sofa position and size"
+    ]
+  },
+  {
+    "id": 11,
+    "level": "K512p_6_L1_s123",
+    "prompt": "An industrial-style sofa upholstered in black cloth fabric, with a straight flat back, square arms, no button tufting and slim black metal legs.",
+    "image": "slurm/inputs/regen_image/512p/K512p_6_L1.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 123,
+    "start_image": "K512p_6_L1",
+    "source_model": "kandinsky",
+    "case": 6,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Industrial shape instead of Chesterfield tufting",
+    "must_stay": [
+      "Black color",
+      "Sofa position and size"
+    ]
+  },
+  {
+    "id": 12,
+    "level": "K512p_6_L1_s2024",
+    "prompt": "An industrial-style sofa upholstered in black cloth fabric, with a straight flat back, square arms, no button tufting and slim black metal legs.",
+    "image": "slurm/inputs/regen_image/512p/K512p_6_L1.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 2024,
+    "start_image": "K512p_6_L1",
+    "source_model": "kandinsky",
+    "case": 6,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Industrial shape instead of Chesterfield tufting",
+    "must_stay": [
+      "Black color",
+      "Sofa position and size"
+    ]
+  },
+  {
+    "id": 13,
+    "level": "K512p_7_L2_s42",
+    "prompt": "An industrial-style sofa upholstered in dark chocolate-brown cloth fabric, with dark metal legs and clean straight lines. Simple, robust and utilitarian.",
+    "image": "slurm/inputs/regen_image/512p/K512p_7_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 42,
+    "start_image": "K512p_7_L2",
+    "source_model": "kandinsky",
+    "case": 7,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Brown instead of orange; coffee table missing",
+    "must_stay": [
+      "Sofa shape and position"
+    ]
+  },
+  {
+    "id": 14,
+    "level": "K512p_7_L2_s123",
+    "prompt": "An industrial-style sofa upholstered in dark chocolate-brown cloth fabric, with dark metal legs and clean straight lines. Simple, robust and utilitarian.",
+    "image": "slurm/inputs/regen_image/512p/K512p_7_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 123,
+    "start_image": "K512p_7_L2",
+    "source_model": "kandinsky",
+    "case": 7,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Brown instead of orange; coffee table missing",
+    "must_stay": [
+      "Sofa shape and position"
+    ]
+  },
+  {
+    "id": 15,
+    "level": "K512p_7_L2_s2024",
+    "prompt": "An industrial-style sofa upholstered in dark chocolate-brown cloth fabric, with dark metal legs and clean straight lines. Simple, robust and utilitarian.",
+    "image": "slurm/inputs/regen_image/512p/K512p_7_L2.png",
+    "mask": "slurm/inputs/mask/512p/TestSofa.5k_005_mask.png",
+    "seed": 2024,
+    "start_image": "K512p_7_L2",
+    "source_model": "kandinsky",
+    "case": 7,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/512p/TestSofa.5k_005.jpg",
+    "fix_needed": "Brown instead of orange; coffee table missing",
+    "must_stay": [
+      "Sofa shape and position"
+    ]
+  }
+]

@@ -21,6 +21,8 @@ PROMPT="${PROMPT:-create a big sofa with red color on top of the mountain, highl
 NEGATIVE_PROMPT="${NEGATIVE_PROMPT:-bad anatomy, deformed, ugly, blurry}"
 DEVICE="${DEVICE:-auto}"
 STEPS="${STEPS:-50}"
+SEED="${SEED:-}"
+STRENGTH="${STRENGTH:-0.99}"
 
 if [[ -f venv/bin/activate ]]; then
     source venv/bin/activate
@@ -39,4 +41,6 @@ python scripts/inpaint.py \
     --negative "$NEGATIVE_PROMPT" \
     --output "$OUTPUT_IMAGE" \
     --device "$DEVICE" \
-    --steps "$STEPS"
+    --steps "$STEPS" \
+    ${SEED:+--seed "$SEED"} \
+    --strength "$STRENGTH"

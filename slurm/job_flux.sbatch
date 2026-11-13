@@ -23,6 +23,7 @@ OUTPUT_IMAGE="${OUTPUT_IMAGE:-outputs/images/flux_fill_${SLURM_JOB_ID:-$(date +%
 PROMPT="${PROMPT:-a black cat with glowing eyes, highly detailed}"
 DEVICE="${DEVICE:-auto}"
 STEPS="${STEPS:-50}"
+SEED="${SEED:-}"
 GUIDANCE_SCALE="${GUIDANCE_SCALE:-30.0}"
 
 if [[ -f venv/bin/activate ]]; then
@@ -42,4 +43,5 @@ python scripts/inpaint.py \
     --output "$OUTPUT_IMAGE" \
     --device "$DEVICE" \
     --steps "$STEPS" \
-    --guidance-scale "$GUIDANCE_SCALE"
+    --guidance-scale "$GUIDANCE_SCALE" \
+    ${SEED:+--seed "$SEED"}

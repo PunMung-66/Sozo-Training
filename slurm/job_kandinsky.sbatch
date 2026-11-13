@@ -21,6 +21,7 @@ PROMPT="${PROMPT:-a black cat with glowing eyes, highly detailed}"
 NEGATIVE_PROMPT="${NEGATIVE_PROMPT:-bad anatomy, deformed, ugly, blurry}"
 DEVICE="${DEVICE:-auto}"
 STEPS="${STEPS:-50}"
+SEED="${SEED:-}"
 
 if [[ -f venv/bin/activate ]]; then
     source venv/bin/activate
@@ -39,4 +40,5 @@ python scripts/inpaint.py \
     --negative "$NEGATIVE_PROMPT" \
     --output "$OUTPUT_IMAGE" \
     --device "$DEVICE" \
-    --steps "$STEPS"
+    --steps "$STEPS" \
+    ${SEED:+--seed "$SEED"}

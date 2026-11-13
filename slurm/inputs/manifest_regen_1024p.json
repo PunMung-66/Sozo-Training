@@ -1,0 +1,392 @@
+[
+  {
+    "id": 1,
+    "level": "F1024p_5_L2_s42",
+    "prompt": "An industrial-style sofa upholstered in off-white cloth fabric, sitting on an exposed dark black metal frame with thin straight metal legs. Clean straight lines, simple and robust, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/1024p/F1024p_5_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestSofa1k_005_mask.png",
+    "seed": 42,
+    "start_image": "F1024p_5_L2",
+    "source_model": "flux",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/1024p/TestSofa1k_005.jpg",
+    "fix_needed": "Industrial look: dark metal frame and slim legs",
+    "must_stay": [
+      "Off-white fabric",
+      "Sofa size and position",
+      "Coffee table"
+    ]
+  },
+  {
+    "id": 2,
+    "level": "F1024p_5_L2_s123",
+    "prompt": "An industrial-style sofa upholstered in off-white cloth fabric, sitting on an exposed dark black metal frame with thin straight metal legs. Clean straight lines, simple and robust, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/1024p/F1024p_5_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestSofa1k_005_mask.png",
+    "seed": 123,
+    "start_image": "F1024p_5_L2",
+    "source_model": "flux",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/1024p/TestSofa1k_005.jpg",
+    "fix_needed": "Industrial look: dark metal frame and slim legs",
+    "must_stay": [
+      "Off-white fabric",
+      "Sofa size and position",
+      "Coffee table"
+    ]
+  },
+  {
+    "id": 3,
+    "level": "F1024p_5_L2_s2024",
+    "prompt": "An industrial-style sofa upholstered in off-white cloth fabric, sitting on an exposed dark black metal frame with thin straight metal legs. Clean straight lines, simple and robust, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/1024p/F1024p_5_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestSofa1k_005_mask.png",
+    "seed": 2024,
+    "start_image": "F1024p_5_L2",
+    "source_model": "flux",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/1024p/TestSofa1k_005.jpg",
+    "fix_needed": "Industrial look: dark metal frame and slim legs",
+    "must_stay": [
+      "Off-white fabric",
+      "Sofa size and position",
+      "Coffee table"
+    ]
+  },
+  {
+    "id": 4,
+    "level": "F1024p_9_L2_s42",
+    "prompt": "A glam-style coffee table with a glossy black reflective glass top and elegant curved black polished metal legs with smooth S-shaped curves. Refined, symmetrical and luxurious.",
+    "image": "slurm/inputs/regen_image/1024p/F1024p_9_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 42,
+    "start_image": "F1024p_9_L2",
+    "source_model": "flux",
+    "case": 9,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs",
+    "must_stay": [
+      "Black reflective glass top",
+      "Vase",
+      "Rug"
+    ]
+  },
+  {
+    "id": 5,
+    "level": "F1024p_9_L2_s123",
+    "prompt": "A glam-style coffee table with a glossy black reflective glass top and elegant curved black polished metal legs with smooth S-shaped curves. Refined, symmetrical and luxurious.",
+    "image": "slurm/inputs/regen_image/1024p/F1024p_9_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 123,
+    "start_image": "F1024p_9_L2",
+    "source_model": "flux",
+    "case": 9,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs",
+    "must_stay": [
+      "Black reflective glass top",
+      "Vase",
+      "Rug"
+    ]
+  },
+  {
+    "id": 6,
+    "level": "F1024p_9_L2_s2024",
+    "prompt": "A glam-style coffee table with a glossy black reflective glass top and elegant curved black polished metal legs with smooth S-shaped curves. Refined, symmetrical and luxurious.",
+    "image": "slurm/inputs/regen_image/1024p/F1024p_9_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 2024,
+    "start_image": "F1024p_9_L2",
+    "source_model": "flux",
+    "case": 9,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs",
+    "must_stay": [
+      "Black reflective glass top",
+      "Vase",
+      "Rug"
+    ]
+  },
+  {
+    "id": 7,
+    "level": "S1024p_1_L1_s42",
+    "prompt": "A Japandi-style bed with an off-white painted wooden frame, visible wooden side rails and four corner legs, a low platform and simple bedding.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_1_L1.png",
+    "mask": "slurm/inputs/mask/1024p/TestBed1k_002_mask.png",
+    "seed": 42,
+    "start_image": "S1024p_1_L1",
+    "source_model": "sdxl",
+    "case": 1,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/1024p/TestBed1k_002.jpg",
+    "fix_needed": "Visible wooden frame; legs at the corners",
+    "must_stay": [
+      "Off-white color",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 8,
+    "level": "S1024p_1_L1_s123",
+    "prompt": "A Japandi-style bed with an off-white painted wooden frame, visible wooden side rails and four corner legs, a low platform and simple bedding.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_1_L1.png",
+    "mask": "slurm/inputs/mask/1024p/TestBed1k_002_mask.png",
+    "seed": 123,
+    "start_image": "S1024p_1_L1",
+    "source_model": "sdxl",
+    "case": 1,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/1024p/TestBed1k_002.jpg",
+    "fix_needed": "Visible wooden frame; legs at the corners",
+    "must_stay": [
+      "Off-white color",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 9,
+    "level": "S1024p_1_L1_s2024",
+    "prompt": "A Japandi-style bed with an off-white painted wooden frame, visible wooden side rails and four corner legs, a low platform and simple bedding.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_1_L1.png",
+    "mask": "slurm/inputs/mask/1024p/TestBed1k_002_mask.png",
+    "seed": 2024,
+    "start_image": "S1024p_1_L1",
+    "source_model": "sdxl",
+    "case": 1,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/1024p/TestBed1k_002.jpg",
+    "fix_needed": "Visible wooden frame; legs at the corners",
+    "must_stay": [
+      "Off-white color",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 10,
+    "level": "S1024p_2_L2_s42",
+    "prompt": "A Japandi-style bed with an off-white wooden frame, a visible wooden base, a low platform, a headboard with vertical fluted grooves and neutral bedding. Minimalist and calm, with clean lines.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_2_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestBed1k_002_mask.png",
+    "seed": 42,
+    "start_image": "S1024p_2_L2",
+    "source_model": "sdxl",
+    "case": 2,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/1024p/TestBed1k_002.jpg",
+    "fix_needed": "Fluted headboard; visible wooden frame",
+    "must_stay": [
+      "Off-white color",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 11,
+    "level": "S1024p_2_L2_s123",
+    "prompt": "A Japandi-style bed with an off-white wooden frame, a visible wooden base, a low platform, a headboard with vertical fluted grooves and neutral bedding. Minimalist and calm, with clean lines.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_2_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestBed1k_002_mask.png",
+    "seed": 123,
+    "start_image": "S1024p_2_L2",
+    "source_model": "sdxl",
+    "case": 2,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/1024p/TestBed1k_002.jpg",
+    "fix_needed": "Fluted headboard; visible wooden frame",
+    "must_stay": [
+      "Off-white color",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 12,
+    "level": "S1024p_2_L2_s2024",
+    "prompt": "A Japandi-style bed with an off-white wooden frame, a visible wooden base, a low platform, a headboard with vertical fluted grooves and neutral bedding. Minimalist and calm, with clean lines.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_2_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestBed1k_002_mask.png",
+    "seed": 2024,
+    "start_image": "S1024p_2_L2",
+    "source_model": "sdxl",
+    "case": 2,
+    "furniture": "bed",
+    "original_image": "slurm/inputs/image/1024p/TestBed1k_002.jpg",
+    "fix_needed": "Fluted headboard; visible wooden frame",
+    "must_stay": [
+      "Off-white color",
+      "Bedding"
+    ]
+  },
+  {
+    "id": 13,
+    "level": "S1024p_5_L2_s42",
+    "prompt": "An industrial-style sofa with off-white fabric cushions on an exposed dark black metal frame with thin straight metal legs. Clean straight lines, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_5_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestSofa1k_005_mask.png",
+    "seed": 42,
+    "start_image": "S1024p_5_L2",
+    "source_model": "sdxl",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/1024p/TestSofa1k_005.jpg",
+    "fix_needed": "Metal frame and slim legs",
+    "must_stay": [
+      "Off-white fabric",
+      "Sofa shape"
+    ]
+  },
+  {
+    "id": 14,
+    "level": "S1024p_5_L2_s123",
+    "prompt": "An industrial-style sofa with off-white fabric cushions on an exposed dark black metal frame with thin straight metal legs. Clean straight lines, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_5_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestSofa1k_005_mask.png",
+    "seed": 123,
+    "start_image": "S1024p_5_L2",
+    "source_model": "sdxl",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/1024p/TestSofa1k_005.jpg",
+    "fix_needed": "Metal frame and slim legs",
+    "must_stay": [
+      "Off-white fabric",
+      "Sofa shape"
+    ]
+  },
+  {
+    "id": 15,
+    "level": "S1024p_5_L2_s2024",
+    "prompt": "An industrial-style sofa with off-white fabric cushions on an exposed dark black metal frame with thin straight metal legs. Clean straight lines, with a raw utilitarian look.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_5_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestSofa1k_005_mask.png",
+    "seed": 2024,
+    "start_image": "S1024p_5_L2",
+    "source_model": "sdxl",
+    "case": 5,
+    "furniture": "sofa",
+    "original_image": "slurm/inputs/image/1024p/TestSofa1k_005.jpg",
+    "fix_needed": "Metal frame and slim legs",
+    "must_stay": [
+      "Off-white fabric",
+      "Sofa shape"
+    ]
+  },
+  {
+    "id": 16,
+    "level": "S1024p_8_L1_s42",
+    "prompt": "A glam-style coffee table with an off-white marble top and elegant curved off-white polished metal legs with smooth S-shaped curves.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_8_L1.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 42,
+    "start_image": "S1024p_8_L1",
+    "source_model": "sdxl",
+    "case": 8,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs",
+    "must_stay": [
+      "Off-white marble top",
+      "Vase",
+      "Rug"
+    ]
+  },
+  {
+    "id": 17,
+    "level": "S1024p_8_L1_s123",
+    "prompt": "A glam-style coffee table with an off-white marble top and elegant curved off-white polished metal legs with smooth S-shaped curves.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_8_L1.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 123,
+    "start_image": "S1024p_8_L1",
+    "source_model": "sdxl",
+    "case": 8,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs",
+    "must_stay": [
+      "Off-white marble top",
+      "Vase",
+      "Rug"
+    ]
+  },
+  {
+    "id": 18,
+    "level": "S1024p_8_L1_s2024",
+    "prompt": "A glam-style coffee table with an off-white marble top and elegant curved off-white polished metal legs with smooth S-shaped curves.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_8_L1.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 2024,
+    "start_image": "S1024p_8_L1",
+    "source_model": "sdxl",
+    "case": 8,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs",
+    "must_stay": [
+      "Off-white marble top",
+      "Vase",
+      "Rug"
+    ]
+  },
+  {
+    "id": 19,
+    "level": "S1024p_9_L2_s42",
+    "prompt": "A glam-style coffee table with a glossy polished black reflective top and elegant curved black metal legs with smooth S-shaped curves. Refined and luxurious.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_9_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 42,
+    "start_image": "S1024p_9_L2",
+    "source_model": "sdxl",
+    "case": 9,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs; polished top",
+    "must_stay": [
+      "Black color",
+      "Vase",
+      "Table position"
+    ]
+  },
+  {
+    "id": 20,
+    "level": "S1024p_9_L2_s123",
+    "prompt": "A glam-style coffee table with a glossy polished black reflective top and elegant curved black metal legs with smooth S-shaped curves. Refined and luxurious.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_9_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 123,
+    "start_image": "S1024p_9_L2",
+    "source_model": "sdxl",
+    "case": 9,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs; polished top",
+    "must_stay": [
+      "Black color",
+      "Vase",
+      "Table position"
+    ]
+  },
+  {
+    "id": 21,
+    "level": "S1024p_9_L2_s2024",
+    "prompt": "A glam-style coffee table with a glossy polished black reflective top and elegant curved black metal legs with smooth S-shaped curves. Refined and luxurious.",
+    "image": "slurm/inputs/regen_image/1024p/S1024p_9_L2.png",
+    "mask": "slurm/inputs/mask/1024p/TestTable1k_003_mask.png",
+    "seed": 2024,
+    "start_image": "S1024p_9_L2",
+    "source_model": "sdxl",
+    "case": 9,
+    "furniture": "table",
+    "original_image": "slurm/inputs/image/1024p/TestTable1k_003.jpg",
+    "fix_needed": "Curved legs; polished top",
+    "must_stay": [
+      "Black color",
+      "Vase",
+      "Table position"
+    ]
+  }
+]
